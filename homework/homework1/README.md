@@ -19,6 +19,7 @@
 
 ## Exercises
 
+
 Complete the following exercises from of [High-Performance Scientific Computing](https://cmse822.github.io/assets/EijkhoutIntroToHPC2020.pdf): You will be expected to present your solutions in-class. For each exercise, include detailed explanations and step-by-step solutions. Code solutions should be well-commented and functional. Graphs or tables should be neatly labeled.
 
 1. **Exercises 1.1, 1.2, and 1.3**
