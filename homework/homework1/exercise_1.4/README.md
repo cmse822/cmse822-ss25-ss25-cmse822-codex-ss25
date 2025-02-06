@@ -48,8 +48,10 @@ Formulas for the efficiency would be:
 
 `T1(n) = (z * k) + z * (n + l - 1) * k`
 
-> ![alt text](image.png)
+
+> <img width="1509" alt="Screenshot 2025-02-06 at 11 23 55 AM" src="https://github.com/user-attachments/assets/f49558e2-4cbc-4a68-95fd-2c523a475f06" />
 > `k = 2 | l = 3 | z = 2`
+> 
 > - T0(n) = Green line
 > - T1(n) = Purple line 
 
