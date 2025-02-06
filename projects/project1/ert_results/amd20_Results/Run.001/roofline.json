@@ -1,0 +1,64 @@
+{
+   "empirical": {
+      "metadata": {},
+      "gflops": {
+         "data": [
+            [
+               "FP64 GFLOPs",
+               40.02
+            ]
+         ],
+         "metadata": {
+            "": [
+               "META_DATA",
+               "FLOPS          4",
+               "ERT_VERSION  1.1.0",
+               "HOSTNAME  ('dev-amd20', ['dev-amd20.i'], ['192.168.0.221'])",
+               "UNAME  uname_result(system='Linux', node='dev-amd20', release='5.15.0-126-generic', version='#136-Ubuntu SMP Wed Nov 6 10:38:22 UTC 2024', machine='x86_64')",
+               "TIMESTAMP_DATA  1738703527.8568327",
+               "CONFIG  {'ERT_RESULTS': ['amd20_Results'], 'ERT_CC': ['gcc'], 'ERT_CFLAGS': ['-O3', '-march=native', '-std=c++17'], 'ERT_LD': ['gcc'], 'ERT_LDFLAGS': ['-lstdc++', '-static-libstdc++'], 'ERT_LDLIBS': ['-lstdc++'], 'ERT_DRIVER': ['driver1'], 'ERT_KERNEL': ['kernel1'], 'ERT_FLOPS': ['1,2,4,8,16'], 'ERT_ALIGN': ['64'], 'ERT_MPI': ['False'], 'ERT_OPENMP': ['False'], 'ERT_GPU': ['False'], 'ERT_RUN': ['./ERT_CODE'], 'ERT_NUM_EXPERIMENTS': ['3'], 'ERT_MEMORY_MAX': ['1073741824'], 'ERT_WORKING_SET_MIN': ['128'], 'ERT_TRIALS_MIN': ['10'], 'ERT_GNUPLOT': ['gnuplot'], 'ERT_HIP': [False], 'ERT_PRECISION': ['FP64'], 'ERT_OCL': [False], 'ERT_SYCL': [False], 'ERT_WSS_MULT': [1.1]}",
+               "TIMESTAMP_DATA  1738703552.00795",
+               "TIMESTAMP_DATA  1738703576.5436964"
+            ],
+            "TIMESTAMP_DB": 1738703821.0162957
+         }
+      },
+      "gbytes": {
+         "data": [
+            [
+               "L1",
+               206.21
+            ],
+            [
+               "L2",
+               174.28
+            ],
+            [
+               "DRAM",
+               41.38
+            ]
+         ],
+         "metadata": {
+            "": [
+               "FLOPS          1",
+               "ERT_VERSION  1.1.0",
+               "HOSTNAME  ('dev-amd20', ['dev-amd20.i'], ['192.168.0.221'])",
+               "UNAME  uname_result(system='Linux', node='dev-amd20', release='5.15.0-126-generic', version='#136-Ubuntu SMP Wed Nov 6 10:38:22 UTC 2024', machine='x86_64')",
+               "TIMESTAMP_DATA  1738703345.9938283",
+               "CONFIG  {'ERT_RESULTS': ['amd20_Results'], 'ERT_CC': ['gcc'], 'ERT_CFLAGS': ['-O3', '-march=native', '-std=c++17'], 'ERT_LD': ['gcc'], 'ERT_LDFLAGS': ['-lstdc++', '-static-libstdc++'], 'ERT_LDLIBS': ['-lstdc++'], 'ERT_DRIVER': ['driver1'], 'ERT_KERNEL': ['kernel1'], 'ERT_FLOPS': ['1,2,4,8,16'], 'ERT_ALIGN': ['64'], 'ERT_MPI': ['False'], 'ERT_OPENMP': ['False'], 'ERT_GPU': ['False'], 'ERT_RUN': ['./ERT_CODE'], 'ERT_NUM_EXPERIMENTS': ['3'], 'ERT_MEMORY_MAX': ['1073741824'], 'ERT_WORKING_SET_MIN': ['128'], 'ERT_TRIALS_MIN': ['10'], 'ERT_GNUPLOT': ['gnuplot'], 'ERT_HIP': [False], 'ERT_PRECISION': ['FP64'], 'ERT_OCL': [False], 'ERT_SYCL': [False], 'ERT_WSS_MULT': [1.1]}",
+               "TIMESTAMP_DATA  1738703369.785005",
+               "TIMESTAMP_DATA  1738703393.378044"
+            ],
+            "TIMESTAMP_DB": 1738703821.0165017
+         }
+      }
+   },
+   "spec": {
+      "gflops": {
+         "data": []
+      },
+      "gbytes": {
+         "data": []
+      }
+   }
+}

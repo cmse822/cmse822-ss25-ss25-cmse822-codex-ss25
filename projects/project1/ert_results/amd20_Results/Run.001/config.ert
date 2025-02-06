@@ -1,7 +1,7 @@
 # === ERT Configuration File for MSU HPCC ===
 
 # Set where results should be stored (relative or absolute path).
-ERT_RESULTS inter16_Results
+ERT_RESULTS amd20_Results
 
 # Specify the theoretical peak values of the machine (if known).
 # This helps compare measured vs. theoretical performance.
