@@ -1,0 +1,63 @@
+[GravityCollapse] Using gravity solver method = cooley_tukey
+[GravityCollapse] Gravity solver completed in 3.25662 seconds.
+[GravityCollapse] Uniform-sphere potential check:
+   L₁ = 7.80922e+14, L₂ = 8.5308e+14 (over 16777216 cells)
+Gravity is ENABLED, G: 6.67e-08
+CFL=0.5, sound_crossings=0.1
+Initial max wave speed= 0.748331, crossingTime= 2.67261e+11, totalTime= 2.67261e+10
+HDF5 file written to: agoge_init.h5
+Step=2, time=1.04399e+09/2.67261e+10, dt=5.21995e+08
+Step=4, time=2.08798e+09/2.67261e+10, dt=5.21995e+08
+Step=6, time=3.13197e+09/2.67261e+10, dt=5.21995e+08
+Step=8, time=4.17596e+09/2.67261e+10, dt=5.21995e+08
+Step=10, time=5.21995e+09/2.67261e+10, dt=5.21995e+08
+Step=12, time=6.26394e+09/2.67261e+10, dt=5.21995e+08
+Step=14, time=7.30792e+09/2.67261e+10, dt=5.21995e+08
+Step=16, time=8.35191e+09/2.67261e+10, dt=5.21995e+08
+Step=18, time=9.3959e+09/2.67261e+10, dt=5.21995e+08
+Step=20, time=1.04399e+10/2.67261e+10, dt=5.21995e+08
+Step=22, time=1.14839e+10/2.67261e+10, dt=5.21995e+08
+Step=24, time=1.25279e+10/2.67261e+10, dt=5.21995e+08
+Step=26, time=1.35719e+10/2.67261e+10, dt=5.21995e+08
+Step=28, time=1.46158e+10/2.67261e+10, dt=5.21995e+08
+Step=30, time=1.56598e+10/2.67261e+10, dt=5.21995e+08
+Step=32, time=1.67038e+10/2.67261e+10, dt=5.21995e+08
+Step=34, time=1.77478e+10/2.67261e+10, dt=5.21995e+08
+Step=36, time=1.87918e+10/2.67261e+10, dt=5.21995e+08
+Step=38, time=1.98358e+10/2.67261e+10, dt=5.21995e+08
+Step=40, time=2.08798e+10/2.67261e+10, dt=5.21995e+08
+Step=42, time=2.19238e+10/2.67261e+10, dt=5.21995e+08
+Step=44, time=2.29678e+10/2.67261e+10, dt=5.21995e+08
+Step=46, time=2.40118e+10/2.67261e+10, dt=5.21995e+08
+Step=48, time=2.50557e+10/2.67261e+10, dt=5.21995e+08
+Step=50, time=2.60997e+10/2.67261e+10, dt=5.21995e+08
+Step=52, time=2.67261e+10/2.67261e+10, dt=1.04399e+08
+HDF5 file written to: agoge_final.h5
+Simulation finished. Final time=2.67261e+10, step count=52
+Final data written to agoge_final.h5
+
+================= PERFORMANCE REPORT =================
+Timer Name              Total Time (s)     Calls     Avg (ms)Mega Zone Updates/s
+--------------------------------------------------------------------------
+main                        187.410837         1187410.837261            4.66
+timeLoop                    179.508646         1179508.645831            4.86
+solvePoisson                170.403691        52  3276.994054            5.12
+--------------------------------------------------------------------------
+
+
+ Performance counter stats for '/mnt/home/behlingt/projects/CMSE822/cmse822-codex-ss25/agoge/agoge_run /mnt/home/behlingt/projects/CMSE822/cmse822-codex-ss25/agoge/problems/GravityCollapse-256.yaml':
+
+   109,542,147,829      L1-dcache-loads                                             
+   130,711,289,859      fp_arith_inst_retired.128b_packed_double                                   
+                 0      fp_arith_inst_retired.128b_packed_single                                   
+                 0      fp_arith_inst_retired.256b_packed_double                                   
+                 0      fp_arith_inst_retired.256b_packed_single                                   
+   153,324,643,486      fp_arith_inst_retired.scalar_double                                   
+                 0      fp_arith_inst_retired.scalar_single                                   
+
+     187.509698620 seconds time elapsed
+
+     170.087504000 seconds user
+      16.554501000 seconds sys
+
+

@@ -1,0 +1,51 @@
+[GravityCollapse] Using gravity solver method = cooley_tukey
+[GravityCollapse] Gravity solver completed in 0.352336 seconds.
+[GravityCollapse] Uniform-sphere potential check:
+   L₁ = 7.80924e+14, L₂ = 8.53081e+14 (over 2097152 cells)
+Gravity is DISABLED, G: 6.67e-08
+CFL=0.5, sound_crossings=0.1
+Initial max wave speed= 0.748331, crossingTime= 2.67261e+11, totalTime= 2.67261e+10
+HDF5 file written to: agoge_init.h5
+Step=2, time=2.08798e+09/2.67261e+10, dt=1.04399e+09
+Step=4, time=4.17596e+09/2.67261e+10, dt=1.04399e+09
+Step=6, time=6.26394e+09/2.67261e+10, dt=1.04399e+09
+Step=8, time=8.35191e+09/2.67261e+10, dt=1.04399e+09
+Step=10, time=1.04399e+10/2.67261e+10, dt=1.04399e+09
+Step=12, time=1.25279e+10/2.67261e+10, dt=1.04399e+09
+Step=14, time=1.46158e+10/2.67261e+10, dt=1.04399e+09
+Step=16, time=1.67038e+10/2.67261e+10, dt=1.04399e+09
+Step=18, time=1.87918e+10/2.67261e+10, dt=1.04399e+09
+Step=20, time=2.08798e+10/2.67261e+10, dt=1.04399e+09
+Step=22, time=2.29678e+10/2.67261e+10, dt=1.04399e+09
+Step=24, time=2.50557e+10/2.67261e+10, dt=1.04399e+09
+Step=26, time=2.67261e+10/2.67261e+10, dt=6.26394e+08
+HDF5 file written to: agoge_final.h5
+Simulation finished. Final time=2.67261e+10, step count=26
+Final data written to agoge_final.h5
+
+================= PERFORMANCE REPORT =================
+Timer Name              Total Time (s)     Calls     Avg (ms)Mega Zone Updates/s
+--------------------------------------------------------------------------
+main                         17.984996         1 17984.995690            3.03
+timeLoop                     17.033132         1 17033.131855            3.20
+EulerSolve                   16.471690        26   633.526546            3.31
+computeL                      9.171760        52   176.380009            5.94
+--------------------------------------------------------------------------
+
+
+ Performance counter stats for '/mnt/home/behlingt/projects/CMSE822/cmse822-codex-ss25/agoge/agoge_run /mnt/home/behlingt/projects/CMSE822/cmse822-codex-ss25/agoge/problems/GravityCollapse-128-Eu.yaml':
+
+    16,020,157,466      L1-dcache-loads                                             
+       929,955,999      fp_arith_inst_retired.128b_packed_double                                   
+                 0      fp_arith_inst_retired.128b_packed_single                                   
+                 0      fp_arith_inst_retired.256b_packed_double                                   
+                 0      fp_arith_inst_retired.256b_packed_single                                   
+    16,710,670,116      fp_arith_inst_retired.scalar_double                                   
+                 0      fp_arith_inst_retired.scalar_single                                   
+
+      18.009453297 seconds time elapsed
+
+      11.035831000 seconds user
+       6.715897000 seconds sys
+
+
