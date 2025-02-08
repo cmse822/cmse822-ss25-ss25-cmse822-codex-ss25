@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
 
-import matplotlib.pyplot as plt
-
 import glob
 
 #this whole circus assumes you are running in the project1 folder of our repo.
@@ -85,6 +83,9 @@ def extract_perf_data(filename):
 
     return(agoge_rows, perf_row)
 
+# ==========================
+# MAIN
+# ==========================
 
 #getting files;
 files = glob.glob("*.out")
@@ -98,6 +99,9 @@ for i in range(len(files)):
     
     output_df = pd.concat([output_df, agoge_rows], ignore_index = True)
     perf_df = pd.concat([perf_df, perf_row], ignore_index = True)
+
+perf_df['arithmetic_intensity'] = perf_df['fp-scalar_double'] / (128 * perf_df['L1-dcache-loads'])
+perf_df['flop_rate'] = perf_df['fp-scalar_double'] / perf_df['time_elapsed']
 
 #saving data as csv.
 output_df.to_csv("agoge_output_data.csv", index = False)
