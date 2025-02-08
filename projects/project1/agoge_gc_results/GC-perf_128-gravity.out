@@ -1,5 +1,5 @@
 [GravityCollapse] Using gravity solver method = cooley_tukey
-[GravityCollapse] Gravity solver completed in 0.357046 seconds.
+[GravityCollapse] Gravity solver completed in 0.333281 seconds.
 [GravityCollapse] Uniform-sphere potential check:
    L₁ = 7.80924e+14, L₂ = 8.53081e+14 (over 2097152 cells)
 Gravity is ENABLED, G: 6.67e-08
@@ -26,15 +26,15 @@ Final data written to agoge_final.h5
 ================= PERFORMANCE REPORT =================
 Timer Name              Total Time (s)     Calls     Avg (ms)Mega Zone Updates/s
 --------------------------------------------------------------------------
-main                         10.671026         1 10671.025741            5.11
-timeLoop                      9.703848         1  9703.847687            5.62
-solvePoisson                  9.140489        26   351.557284            5.97
+main                         10.014808         1 10014.807712            5.44
+timeLoop                      9.161759         1  9161.759166            5.95
+solvePoisson                  8.624247        26   331.701820            6.32
 --------------------------------------------------------------------------
 
 
  Performance counter stats for '/mnt/home/behlingt/projects/CMSE822/cmse822-codex-ss25/agoge/agoge_run /mnt/home/behlingt/projects/CMSE822/cmse822-codex-ss25/agoge/problems/GravityCollapse-128.yaml':
 
-     6,717,786,323      L1-dcache-loads                                             
+     6,716,978,069      L1-dcache-loads                                             
      7,304,380,419      fp_arith_inst_retired.128b_packed_double                                   
                  0      fp_arith_inst_retired.128b_packed_single                                   
                  0      fp_arith_inst_retired.256b_packed_double                                   
@@ -42,9 +42,9 @@ solvePoisson                  9.140489        26   351.557284            5.97
      9,065,454,922      fp_arith_inst_retired.scalar_double                                   
                  0      fp_arith_inst_retired.scalar_single                                   
 
-      10.732865834 seconds time elapsed
+      10.088044306 seconds time elapsed
 
-       9.812697000 seconds user
-       0.611295000 seconds sys
+       9.163317000 seconds user
+       0.700253000 seconds sys
 
 
