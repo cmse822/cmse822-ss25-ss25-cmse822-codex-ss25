@@ -1,0 +1,111 @@
+[GravityCollapse] Using gravity solver method = cooley_tukey
+[GravityCollapse] Gravity solver completed in 32.9879 seconds.
+[GravityCollapse] Uniform-sphere potential check:
+   L₁ = 7.80921e+14, L₂ = 8.53079e+14 (over 134217728 cells)
+Gravity is DISABLED, G: 6.67e-08
+CFL=0.5, sound_crossings=0.0004
+Initial max wave speed= 0.748331, crossingTime= 2.67261e+11, totalTime= 1.06904e+08
+HDF5 file written to: agoge_init.h5
+HDF5 file written to: agoge_final.h5
+Simulation finished. Final time=1.06904e+08, step count=1
+Final data written to agoge_final.h5
+
+================= PERFORMANCE REPORT =================
+Timer Name              Total Time (s)     Calls     Avg (ms)Mega Zone Updates/s
+--------------------------------------------------------------------------
+main                        119.284403         1119284.402912            1.13
+timeLoop                     47.295756         1 47295.756142            2.84
+EulerSolve                   46.183258         1 46183.257938            2.91
+computeL                     26.995017         2 13497.508462            4.97
+--------------------------------------------------------------------------
+
+Elapsed Time: 119.753s
+    SP GFLOPS: 0.000
+    DP GFLOPS: 1.694
+    x87 GFLOPS: 0.000
+    CPI Rate: 0.956
+    Average CPU Frequency: 3.618 GHz
+    Total Thread Count: 1
+Effective CPU Utilization: 2.3%
+ | The metric value is low, which may signal a poor logical CPU cores
+ | utilization caused by load imbalance, threading runtime overhead, contended
+ | synchronization, or thread/process underutilization. Explore sub-metrics to
+ | estimate the efficiency of MPI and OpenMP parallelism or run the Locks and
+ | Waits analysis to identify parallel bottlenecks for other parallel runtimes.
+ |
+    Average Effective CPU Utilization: 0.929 out of 40
+Memory Bound: 9.1% of Pipeline Slots
+    Cache Bound: 20.3% of Clockticks
+     | A significant proportion of cycles are being spent on data fetches from
+     | caches. Check Memory Access analysis to see if accesses to L2 or L3
+     | caches are problematic and consider applying the same performance tuning
+     | as you would for a cache-missing workload. This may include reducing the
+     | data working set size, improving data access locality, blocking or
+     | partitioning the working set to fit in the lower cache levels, or
+     | exploiting hardware prefetchers. Consider using software prefetchers, but
+     | note that they can interfere with normal loads, increase latency, and
+     | increase pressure on the memory system. This metric includes coherence
+     | penalties for shared data. Check Microarchitecture Exploration analysis
+     | to see if contested accesses or data sharing are indicated as likely
+     | issues.
+     |
+    DRAM Bound: 18.8% of Clockticks
+        DRAM Bandwidth Bound: 0.0% of Elapsed Time
+    NUMA: % of Remote Accesses: 9.8%
+
+    Bandwidth Utilization
+    Bandwidth Domain             Platform Maximum  Observed Maximum  Average  % of Elapsed Time with High BW Utilization(%)
+    ---------------------------  ----------------  ----------------  -------  ---------------------------------------------
+    DRAM, GB/sec                 228                         42.700    4.447                                           0.0%
+    DRAM Single-Package, GB/sec  114                         35.800    4.423                                           0.0%
+Vectorization: 24.6% of Packed FP Operations
+ | A significant fraction of floating point arithmetic instructions are scalar.
+ | This indicates that the code was not fully vectorized. Use Intel Advisor to
+ | see possible reasons why the code was not vectorized.
+ |
+    Instruction Mix
+        SP FLOPs: 0.0% of uOps
+            Packed: 0.0% from SP FP
+                128-bit: 0.0% from SP FP
+                256-bit: 0.0% from SP FP
+                512-bit: 0.0% from SP FP
+            Scalar: 0.0% from SP FP
+        DP FLOPs: 20.0% of uOps
+            Packed: 24.6% from DP FP
+                128-bit: 24.6% from DP FP
+                 | Using the latest vector instruction set can improve
+                 | parallelism for this code. Consider either recompiling the
+                 | code with the latest instruction set or using Intel Advisor
+                 | to get vectorization help.
+                 |
+                256-bit: 0.0% from DP FP
+                512-bit: 0.0% from DP FP
+            Scalar: 75.4% from DP FP
+             | A significant fraction of floating point arithmetic instructions
+             | are scalar. This indicates that the code was not fully
+             | vectorized. Use Intel Advisor to see possible reasons why the
+             | code was not vectorized.
+             |
+        x87 FLOPs: 0.0% of uOps
+        Non-FP: 80.0% of uOps
+    FP Arith/Mem Rd Instr. Ratio: 1.330
+    FP Arith/Mem Wr Instr. Ratio: 2.741
+Collection and Platform Info
+    Application Command Line: ../../agoge_run "../../problems/GravityCollapse-512-Eu.yaml" 
+    Operating System: 5.15.0-126-generic DISTRIB_ID=Ubuntu DISTRIB_RELEASE=22.04 DISTRIB_CODENAME=jammy DISTRIB_DESCRIPTION="Ubuntu 22.04.5 LTS"
+    Computer Name: dev-intel18
+    Result Size: 180.3 MB 
+    Collection start time: 03:06:36 09/02/2025 UTC
+    Collection stop time: 03:08:36 09/02/2025 UTC
+    Collector Type: Driverless Perf per-process sampling
+    CPU
+        Name: Intel(R) Xeon(R) Processor code named Skylake
+        Frequency: 2.394 GHz
+        Logical CPU Count: 40
+        Max DRAM Single-Package Bandwidth: 114.000 GB/s
+        LLC size: 28.8 MB 
+
+If you want to skip descriptions of detected performance issues in the report,
+enter: vtune -report summary -report-knob show-issues=false -r <my_result_dir>.
+Alternatively, you may view the report in the csv format: vtune -report
+<report_name> -format=csv.

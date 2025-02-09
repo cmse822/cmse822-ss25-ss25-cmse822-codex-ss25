@@ -18,13 +18,18 @@ gravity_df.sort_values(by="resolution", inplace = True)
 
 plt.figure(figsize = [14,8])
 
-plt.plot(euler_df['resolution'], euler_df['mega_zone_updates_ps'], color = 'blue', label = 'Euler Solve')
-plt.plot(gravity_df['resolution'], gravity_df['mega_zone_updates_ps'], color = 'red', label = 'Gravity Solve')
+plt.scatter(euler_df['resolution'], euler_df['mega_zone_updates_ps'], color = 'blue', label = 'Euler Solve')
+plt.scatter(gravity_df['resolution'], gravity_df['mega_zone_updates_ps'], color = 'red', label = 'Gravity Solve')
 
 plt.legend()
 
+plt.ylabel('MZU/sec')
+plt.xlabel('Resolution')
+
 plt.yscale('log')
 plt.xscale('log')
+
+plt.grid(True, which="both", linestyle="--", linewidth=0.5)
 
 plt.savefig("complexity.pdf", bbox_inches = "tight")
 

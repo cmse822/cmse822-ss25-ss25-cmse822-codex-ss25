@@ -104,6 +104,6 @@ perf_df['arithmetic_intensity'] = perf_df['fp-scalar_double'] / (128 * perf_df['
 perf_df['flop_rate'] = perf_df['fp-scalar_double'] / perf_df['time_elapsed']
 
 #saving data as csv.
-output_df.to_csv("agoge_output_data.csv", index = False)
-perf_df.to_csv("agoge_perf_data.csv", index = False)
+output_df.to_csv("../agoge_output_data.csv", index = False)
+perf_df.to_csv("../agoge_perf_data.csv", index = False)
 
