@@ -77,3 +77,13 @@ __Kernel 2__ fares the best, having the same arithmetic intensity as the previou
 ![AMD20 Warmup](./Roofline_Images/amd20_Warmup_Kernels.png)
 
 On the AMD20 system, we would still expect poor performance from __Kernels 1, 3, and 4__, hitting L1 roofline at best around 25 GFLOPs/sec and at worst around 18 GFLOPs/sec. __Kernel 2__ Hits peak performance for L2 cache, but hits the DRAM roofline at around 10 GLFOPs/sec.
+
+## Part 2
+
+### Estimate Big-O Scalings
+
+Below, we plotted the zone updates per second by the resolution for both the Euler Solver and the Gravity Solver. The Euler Solver is a stencil operation, whereas the Gravity solver is a Fast Fourier Transform Spectral method. 
+
+![Complexity](./agoge_gc_results/complexity.png)
+
+By the plot, we can see that the Gravity Solver consistently has more zone updates per second than the Euler Solver, no matter the resolution. 
