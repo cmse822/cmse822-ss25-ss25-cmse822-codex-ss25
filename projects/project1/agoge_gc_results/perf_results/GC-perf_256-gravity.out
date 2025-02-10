@@ -1,0 +1,39 @@
+[GravityCollapse] Using gravity solver method = cooley_tukey
+[GravityCollapse] Gravity solver completed in 3.22238 seconds.
+[GravityCollapse] Uniform-sphere potential check:
+   L₁ = 7.80922e+14, L₂ = 8.5308e+14 (over 16777216 cells)
+Gravity is ENABLED, G: 6.67e-08
+CFL=0.5, sound_crossings=0.00625
+Initial max wave speed= 0.748331, crossingTime= 2.67261e+11, totalTime= 1.67038e+09
+HDF5 file written to: agoge_init.h5
+Step=2, time=1.04399e+09/1.67038e+09, dt=5.21995e+08
+Step=4, time=1.67038e+09/1.67038e+09, dt=1.04399e+08
+HDF5 file written to: agoge_final.h5
+Simulation finished. Final time=1.67038e+09, step count=4
+Final data written to agoge_final.h5
+
+================= PERFORMANCE REPORT =================
+Timer Name              Total Time (s)     Calls     Avg (ms)Mega Zone Updates/s
+--------------------------------------------------------------------------
+main                         21.308997         1 21308.996521            3.15
+timeLoop                     13.609402         1 13609.402206            4.93
+solvePoisson                 12.919037         4  3229.759253            5.19
+--------------------------------------------------------------------------
+
+
+ Performance counter stats for '/mnt/home/behlingt/projects/CMSE822/cmse822-codex-ss25/agoge/agoge_run /mnt/home/behlingt/projects/CMSE822/cmse822-codex-ss25/agoge/problems/GravityCollapse-256.yaml':
+
+    12,906,536,811      L1-dcache-loads                                             
+    12,331,253,763      fp_arith_inst_retired.128b_packed_double                                   
+                 0      fp_arith_inst_retired.128b_packed_single                                   
+                 0      fp_arith_inst_retired.256b_packed_double                                   
+                 0      fp_arith_inst_retired.256b_packed_single                                   
+    15,044,707,006      fp_arith_inst_retired.scalar_double                                   
+                 0      fp_arith_inst_retired.scalar_single                                   
+
+      21.401467112 seconds time elapsed
+
+      16.856579000 seconds user
+       3.701005000 seconds sys
+
+

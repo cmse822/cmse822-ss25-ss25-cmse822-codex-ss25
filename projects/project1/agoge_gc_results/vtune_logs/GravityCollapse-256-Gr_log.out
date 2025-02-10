@@ -1,0 +1,99 @@
+[GravityCollapse] Using gravity solver method = cooley_tukey
+[GravityCollapse] Gravity solver completed in 2.80784 seconds.
+[GravityCollapse] Uniform-sphere potential check:
+   L₁ = 7.80922e+14, L₂ = 8.5308e+14 (over 16777216 cells)
+Gravity is ENABLED, G: 6.67e-08
+CFL=0.5, sound_crossings=0.00625
+Initial max wave speed= 0.748331, crossingTime= 2.67261e+11, totalTime= 1.67038e+09
+HDF5 file written to: agoge_init.h5
+Step=2, time=1.04399e+09/1.67038e+09, dt=5.21995e+08
+Step=4, time=1.67038e+09/1.67038e+09, dt=1.04399e+08
+HDF5 file written to: agoge_final.h5
+Simulation finished. Final time=1.67038e+09, step count=4
+Final data written to agoge_final.h5
+
+================= PERFORMANCE REPORT =================
+Timer Name              Total Time (s)     Calls     Avg (ms)Mega Zone Updates/s
+--------------------------------------------------------------------------
+main                         18.169754         1 18169.754303            3.69
+timeLoop                     11.297915         1 11297.915203            5.94
+solvePoisson                 10.753781         4  2688.445214            6.24
+--------------------------------------------------------------------------
+
+Elapsed Time: 18.260s
+    SP GFLOPS: 0.000
+    DP GFLOPS: 3.867
+    x87 GFLOPS: 0.000
+    CPI Rate: 0.520
+    Average CPU Frequency: 3.654 GHz
+    Total Thread Count: 1
+Effective CPU Utilization: 2.4%
+ | The metric value is low, which may signal a poor logical CPU cores
+ | utilization caused by load imbalance, threading runtime overhead, contended
+ | synchronization, or thread/process underutilization. Explore sub-metrics to
+ | estimate the efficiency of MPI and OpenMP parallelism or run the Locks and
+ | Waits analysis to identify parallel bottlenecks for other parallel runtimes.
+ |
+    Average Effective CPU Utilization: 0.954 out of 40
+Memory Bound: 0.0% of Pipeline Slots
+    Cache Bound: 13.6% of Clockticks
+    DRAM Bound: 17.1% of Clockticks
+        DRAM Bandwidth Bound: 0.0% of Elapsed Time
+    NUMA: % of Remote Accesses: 0.0%
+
+    Bandwidth Utilization
+    Bandwidth Domain             Platform Maximum  Observed Maximum  Average  % of Elapsed Time with High BW Utilization(%)
+    ---------------------------  ----------------  ----------------  -------  ---------------------------------------------
+    DRAM, GB/sec                 226                         24.300    2.158                                           0.0%
+    DRAM Single-Package, GB/sec  113                         23.500    2.816                                           0.0%
+Vectorization: 44.6% of Packed FP Operations
+ | A significant fraction of floating point arithmetic instructions are scalar.
+ | This indicates that the code was not fully vectorized. Use Intel Advisor to
+ | see possible reasons why the code was not vectorized.
+ |
+    Instruction Mix
+        SP FLOPs: 0.0% of uOps
+            Packed: 0.0% from SP FP
+                128-bit: 0.0% from SP FP
+                256-bit: 0.0% from SP FP
+                512-bit: 0.0% from SP FP
+            Scalar: 0.0% from SP FP
+        DP FLOPs: 22.5% of uOps
+            Packed: 44.6% from DP FP
+                128-bit: 44.6% from DP FP
+                 | Using the latest vector instruction set can improve
+                 | parallelism for this code. Consider either recompiling the
+                 | code with the latest instruction set or using Intel Advisor
+                 | to get vectorization help.
+                 |
+                256-bit: 0.0% from DP FP
+                512-bit: 0.0% from DP FP
+            Scalar: 55.4% from DP FP
+             | A significant fraction of floating point arithmetic instructions
+             | are scalar. This indicates that the code was not fully
+             | vectorized. Use Intel Advisor to see possible reasons why the
+             | code was not vectorized.
+             |
+        x87 FLOPs: 0.0% of uOps
+        Non-FP: 77.5% of uOps
+    FP Arith/Mem Rd Instr. Ratio: 2.427
+    FP Arith/Mem Wr Instr. Ratio: 3.527
+Collection and Platform Info
+    Application Command Line: ../../agoge_run "../../problems/GravityCollapse-256-Gr.yaml" 
+    Operating System: 5.15.0-126-generic DISTRIB_ID=Ubuntu DISTRIB_RELEASE=22.04 DISTRIB_CODENAME=jammy DISTRIB_DESCRIPTION="Ubuntu 22.04.5 LTS"
+    Computer Name: dev-intel18
+    Result Size: 34.1 MB 
+    Collection start time: 03:02:56 09/02/2025 UTC
+    Collection stop time: 03:03:14 09/02/2025 UTC
+    Collector Type: Driverless Perf per-process sampling
+    CPU
+        Name: Intel(R) Xeon(R) Processor code named Skylake
+        Frequency: 2.394 GHz
+        Logical CPU Count: 40
+        Max DRAM Single-Package Bandwidth: 113.000 GB/s
+        LLC size: 28.8 MB 
+
+If you want to skip descriptions of detected performance issues in the report,
+enter: vtune -report summary -report-knob show-issues=false -r <my_result_dir>.
+Alternatively, you may view the report in the csv format: vtune -report
+<report_name> -format=csv.

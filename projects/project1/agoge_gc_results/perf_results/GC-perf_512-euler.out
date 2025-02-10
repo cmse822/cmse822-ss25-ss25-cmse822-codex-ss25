@@ -1,0 +1,38 @@
+[GravityCollapse] Using gravity solver method = cooley_tukey
+[GravityCollapse] Gravity solver completed in 32.3562 seconds.
+[GravityCollapse] Uniform-sphere potential check:
+   L₁ = 7.80921e+14, L₂ = 8.53079e+14 (over 134217728 cells)
+Gravity is DISABLED, G: 6.67e-08
+CFL=0.5, sound_crossings=0.0004
+Initial max wave speed= 0.748331, crossingTime= 2.67261e+11, totalTime= 1.06904e+08
+HDF5 file written to: agoge_init.h5
+HDF5 file written to: agoge_final.h5
+Simulation finished. Final time=1.06904e+08, step count=1
+Final data written to agoge_final.h5
+
+================= PERFORMANCE REPORT =================
+Timer Name              Total Time (s)     Calls     Avg (ms)Mega Zone Updates/s
+--------------------------------------------------------------------------
+main                        108.950754         1 108950.754426            1.23
+timeLoop                     43.263801         1 43263.801335            3.10
+EulerSolve                   41.931646         1 41931.645591            3.20
+computeL                     25.115117         2 12557.558335            5.34
+--------------------------------------------------------------------------
+
+
+ Performance counter stats for '/mnt/home/behlingt/projects/CMSE822/cmse822-codex-ss25/agoge/agoge_run /mnt/home/behlingt/projects/CMSE822/cmse822-codex-ss25/agoge/problems/GravityCollapse-512-Eu.yaml':
+
+    79,809,429,561      L1-dcache-loads                                             
+    23,759,683,593      fp_arith_inst_retired.128b_packed_double                                   
+                 0      fp_arith_inst_retired.128b_packed_single                                   
+                 0      fp_arith_inst_retired.256b_packed_double                                   
+                 0      fp_arith_inst_retired.256b_packed_single                                   
+    70,019,908,592      fp_arith_inst_retired.scalar_double                                   
+                 0      fp_arith_inst_retired.scalar_single                                   
+
+     109.305818866 seconds time elapsed
+
+      66.919704000 seconds user
+      37.425257000 seconds sys
+
+
