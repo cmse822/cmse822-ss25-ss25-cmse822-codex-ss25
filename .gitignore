@@ -84,9 +84,6 @@ agoge/CMakeFiles/
 agoge/cmake_install.cmake
 agoge/build/*
 
-# Images
-*.png
-
 # HDF5 output
 *.h5
 
