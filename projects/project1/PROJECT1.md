@@ -27,11 +27,11 @@ We summarize the plots in the table below, including ridge points for each cache
 | ---                  | ---    | ---      | ---      |
 | L1 Bandwidth (GB/s)  | 206.2  | 172.4    | 242.7    |
 | L2 Bandwidth (GB/s)  | 174.3  | 113.5    | 174.5    |
-| L3 Bandwidth (GB/s)  | 41.4   | 71.2     | 83.1     |
+| L3 Bandwidth (GB/s)  | X      | 71.2     | 83.1     |
 | Peak Perf (GFLOPS/s) | 40.0   | 31.4     | 47.3     |
 | L1 Ridge             | ~0.2   | ~0.2     | ~0.2     |
 | L2 Ridge             | ~0.4   | ~0.3     | ~0.3     |
-| L3 Ridge             | ~1     | ~0.4     | ~0.6     |
+| L3 Ridge             | X      | ~0.4     | ~0.6     |
 
 #
 
