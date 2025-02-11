@@ -77,3 +77,17 @@ __Kernel 2__ fares the best, having the same arithmetic intensity as the previou
 ![AMD20 Warmup](./Roofline_Images/amd20_Warmup_Kernels.png)
 
 On the AMD20 system, we would still expect poor performance from __Kernels 1, 3, and 4__, hitting L1 roofline at best around 25 GFLOPs/sec and at worst around 18 GFLOPs/sec. __Kernel 2__ Hits peak performance for L2 cache, but hits the DRAM roofline at around 10 GLFOPs/sec.
+
+## Part 2
+
+### Estimate Big-O Scalings
+
+Below, we plotted the mega zone updates (MZU) per second by the resolution for both the Euler Solver and the Gravity Solver. The Euler Solver is a stencil operation, whereas the Gravity solver is a Fast Fourier Transform Spectral method. 
+
+![Complexity](./agoge_gc_results/complexity.png)
+
+By the plot, we can see that the Gravity Solver consistently has more zone updates per second than the Euler Solver, no matter the resolution. 
+
+As the resolution increases, the Euler Solver decreases at a steeper rate than the Gravity Solver. Looking at slopes, we see that the while the resolution continually doubles, the MZU/sec rate for the Gravity Solver seems to decrease linearly. By contrast, the Euler solver steeply decreases while the resolution is below 128, then seems to remain stable after 128.
+
+This suggests that the computational complexity of the Gravity Solver is $O(nlog(n))$ and the Euler Solver is $O(n^2)$. 
