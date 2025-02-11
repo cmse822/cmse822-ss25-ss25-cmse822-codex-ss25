@@ -23,7 +23,7 @@ def get_vtune_data(filename):
         DRAM_line = lines[17]
 
     DFLOPS_val = float(DFLOPS_line.split("	")[2])
-    DRAM_val = float(DRAM_line.split("	")[2])
+    DRAM_val = float(DRAM_line.split("	")[3])
 
     output_row = pd.DataFrame([[resolution, kernel, DFLOPS_val, DRAM_val]], columns = ["resolution", "kernel", "GFLOPS", "GBpSEC"])
 
