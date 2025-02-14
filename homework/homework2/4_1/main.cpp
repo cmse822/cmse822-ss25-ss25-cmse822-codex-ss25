@@ -1,12 +1,11 @@
- /**
- **** by Victor Eijkhout, eijkhout@tacc.utexas.edu
- ****
- **** copyright Victor Eijkhout 2012-7
- ****
- **** MPI Exercise
- ****
- ****************************************************************/
-
+/**
+**** by Victor Eijkhout, eijkhout@tacc.utexas.edu
+****
+**** copyright Victor Eijkhout 2012-7
+****
+**** MPI Exercise
+****
+****************************************************************/
 
 // mpicc -std=c++17 main.cpp -lstdc++ -O3
 // mpirun -n 2 ./a.out 10000
@@ -17,9 +16,9 @@
 #include <sstream>
 #include <string>
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   int NEXPERIMENTS = 10000;
-  if(argc > 1) {
+  if (argc > 1) {
     NEXPERIMENTS = std::stoi(argv[1]);
   }
   MPI_Comm comm = MPI_COMM_WORLD;
@@ -45,7 +44,7 @@ int main(int argc, char* argv[]) {
   if (procno == processA) {
     t = MPI_Wtime();
     for (int n = 0; n < NEXPERIMENTS; n++) {
-      
+
       MPI_Send(send,       // Buffer
                1,          // Number of elements to send in buffer
                MPI_DOUBLE, // Type sending in buffer
@@ -58,8 +57,6 @@ int main(int argc, char* argv[]) {
                processB,   // Receive from processB
                0,          // Tag 0
                comm, MPI_STATUS_IGNORE);
-
-
     }
     t = MPI_Wtime() - t;
     t /= NEXPERIMENTS;
