@@ -16,9 +16,9 @@
 #include <sstream>
 #include <string>
 
-int main(int argc, char *argv[]) {
-  int NEXPERIMENTS = 10000;
-  if (argc > 1) {
+int main(int argc, char* argv[]) {
+  int NEXPERIMENTS = 1'000'000;
+  if(argc > 1) {
     NEXPERIMENTS = std::stoi(argv[1]);
   }
   MPI_Comm comm = MPI_COMM_WORLD;
@@ -29,8 +29,6 @@ int main(int argc, char *argv[]) {
 
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &procno);
-
-  std::cout << nprocs << " " << procno << std::endl;
 
   // Exercise:
   // -- set source and target processors two ways:
@@ -62,7 +60,7 @@ int main(int argc, char *argv[]) {
     t /= NEXPERIMENTS;
     {
       int nanosec = t * 1000000000;
-      proctext << "Time for pingpong: " << std::fixed << std::setprecision(3)
+      proctext << nprocs << " - Time for pingpong: " << std::fixed << std::setprecision(3)
                << nanosec * 1.e-3 << " (microsec)" << std::endl;
     }
     std::cerr << proctext.str();
