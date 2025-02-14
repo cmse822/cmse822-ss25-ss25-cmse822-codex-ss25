@@ -1,7 +1,4 @@
-/****************************************************************
- ****
- **** This program file is part of the book
- **** `Parallel programming for Science and Engineering'
+ /**
  **** by Victor Eijkhout, eijkhout@tacc.utexas.edu
  ****
  **** copyright Victor Eijkhout 2012-7
@@ -10,21 +7,26 @@
  ****
  ****************************************************************/
 
-// mpicc -std=c++17 main.cpp -lstdc++ -lmpi_cxx
+
+// mpicc -std=c++17 main.cpp -lstdc++ -O3
+// mpirun -n 2 ./a.out 10000
 
 #include <iomanip>
 #include <iostream>
 #include <mpi.h>
 #include <sstream>
+#include <string>
 
-#define NEXPERIMENTS 2
-
-int main() {
+int main(int argc, char* argv[]) {
+  int NEXPERIMENTS = 10000;
+  if(argc > 1) {
+    NEXPERIMENTS = std::stoi(argv[1]);
+  }
   MPI_Comm comm = MPI_COMM_WORLD;
   int nprocs, procno;
   std::stringstream proctext;
 
-  MPI_Init(0, 0);
+  MPI_Init(&argc, &argv);
 
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &procno);
@@ -37,25 +39,27 @@ int main() {
   // -- run the experiment both ways.
 
   int processA = 0;
-  int processB = 1;
+  int processB = nprocs - 1;
   double t, send[10000], recv[10000];
   send[0] = 1.1;
   if (procno == processA) {
     t = MPI_Wtime();
     for (int n = 0; n < NEXPERIMENTS; n++) {
+      
       MPI_Send(send,       // Buffer
                1,          // Number of elements to send in buffer
                MPI_DOUBLE, // Type sending in buffer
                processB,   // Destination rank
                0,          // Tag, usually 0
                comm);
-
       MPI_Recv(recv,       // Receive buffer
                1,          // Size of receiving buffer
                MPI_DOUBLE, // Type of receiving buffer
                processB,   // Receive from processB
                0,          // Tag 0
                comm, MPI_STATUS_IGNORE);
+
+
     }
     t = MPI_Wtime() - t;
     t /= NEXPERIMENTS;
