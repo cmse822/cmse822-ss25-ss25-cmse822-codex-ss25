@@ -7,9 +7,9 @@ The arithmetic intensity of a kernel is the number of operations done on its dat
 | Kernel Operation                 | Arithmetic Intensity        | Notes                                                                                          |
 |-----------------------------------|----------------------------|------------------------------------------------------------------------------------------------|
 | `Y[j] += Y[j] + A[j][i] * B[i]`  | $3/32=0.09375$             | There are three loads, one store, and 3 FLOPS.                                                 |
-| `s += A[i] * A[i]`               | $1/4=0.25$                 | The variable 's' can be kept in the accumulator register so that it is only written to at the end of the loop. So, there are only one load, no stores, and 2 FLOPS. |
-| `s += A[i] * B[i]`               | $1/8=0.125$                | Similar to the previous kernel, except it requires two data loads.                             |
-| `Y[i] = A[i] + C*B[i]`           | $1/12\approx0.0833$        | 'C' is a constant which can be kept in register. So, there are two data loads, one store, and two FLOPS. |
+| `s += A[i] * A[i]`               | $2/8=0.25$                 | The variable 's' can be kept in the accumulator register so that it is only written to at the end of the loop. So, there is only one load, no stores, and 2 FLOPS. |
+| `s += A[i] * B[i]`               | $2/16=0.125$                | Similar to the previous kernel, except it requires two data loads.                             |
+| `Y[i] = A[i] + C*B[i]`           | $2/24\approx0.0833$        | 'C' is a constant which can be kept in register. So, there are two data loads, one store, and two FLOPS. |
 
 
 ## Part 1: The Roofline Model
@@ -60,13 +60,13 @@ Looking at the AMD system, we see a similar story. The main differences are
 - L3 cache is not captured on this system.
 - __Stencil__ hits peak performance for DRAM on this system.
 
-It is also worth noting that the peak performance on the AMD20 is about 7 GLFOPs/sec slower than the Intel18.
+It is also worth noting that the peak performance on the AMD20 is about 7 GFLOPs/sec slower than the Intel18.
 
 ### Roofline of Warmup Kernels
 
 Now, we perform the same analysis on these nodes for the kernels from arithmetic intensity calculations. 
 
-In both of the plots below, the colors of each vertical line coorespond to these kernel operations:
+In both of the plots below, the colors of each vertical line correspond to these kernel operations:
 * **Green:** `Y[j] += Y[j] + A[j][i] * B[i]`
 * **Red:** `s += A[i] * A[i]`
 * **Blue:** `s += A[i] * B[i]`
@@ -80,7 +80,7 @@ __Kernel 2__ fares the best, having the same arithmetic intensity as the previou
 
 ![AMD20 Warmup](./Roofline_Images/amd20_Warmup_Kernels.png)
 
-On the AMD20 system, we would still expect poor performance from __Kernels 1, 3, and 4__, hitting L1 roofline at best around 25 GFLOPs/sec and at worst around 18 GFLOPs/sec. __Kernel 2__ Hits peak performance for L2 cache, but hits the DRAM roofline at around 10 GLFOPs/sec.
+On the AMD20 system, we would still expect poor performance from __Kernels 1, 3, and 4__, hitting L1 roofline at best around 25 GFLOPs/sec and at worst around 18 GFLOPs/sec. __Kernel 2__ Hits peak performance for L2 cache, but hits the DRAM roofline at around 10 GFLOPs/sec.
 
 ## Part 2: Enter the Agoge
 ### Estimating big-O Scalings
@@ -91,9 +91,34 @@ Below, we plotted the mega zone updates (MZU) per second by the resolution for b
 
 By the plot, we can see that the Gravity Solver consistently has more zone updates per second than the Euler Solver, no matter the resolution. 
 
-As the resolution increases, the Euler Solver decreases at a steeper rate than the Gravity Solver. Looking at slopes, we see that the while the resolution continually doubles, the MZU/sec rate for the Gravity Solver seems to decrease linearly. By contrast, the Euler solver steeply decreases while the resolution is below 128, then seems to remain stable after 128.
+As the resolution increases, the Euler Solver decreases at a steeper rate than the Gravity Solver. Looking at slopes, we see that the while the resolution continually doubles, the MZU/sec rate for the Gravity Solver seems to decrease linearly (on this log-log plot). By contrast, the Euler solver steeply decreases while the resolution is below 128, then seems to remain stable after 128.
 
 This suggests that the computational complexity of the Gravity Solver is $O(nlog(n))$ and the Euler Solver is $O(n^2)$. 
 
 ### Performance Profiling
-[Work in Progress]
+
+Below are the results of running Intel VTune to analyze the performance of the Agoge GravityCollapse and EulerSolve kernels. 
+
+| Kernel   | Resolution | GFLOPS   | FLOP Rate (GFLOPS/sec) | GB/s   | Arithmetic Intensity |
+|----------|------------|---------|------------------------|--------|----------------------|
+| Euler    | 16         | 4.896176 | 0.72403                | 226.0  | 0.02166              |
+|          | 32         | 2.656359 | 0.22910                | 226.0  | 0.01175              |
+|          | 64         | 2.175986 | 0.15943                | 226.0  | 0.00963              |
+|          | 128        | 1.916873 | 0.11887                | 226.0  | 0.00848              |
+|          | 256        | 1.906676 | 0.07185                | 224.0  | 0.00851              |
+|          | 512        | 1.693823 | 0.01414                | 228.0  | 0.00743              |
+| Gravity  | 16         | 4.839837 | 0.96793                | 224.0  | 0.02161              |
+|          | 32         | 5.690762 | 1.11518                | 226.0  | 0.02518              |
+|          | 64         | 6.022634 | 1.00840                | 224.0  | 0.02689              |
+|          | 128        | 4.852295 | 0.55452                | 224.0  | 0.02166              |
+|          | 256        | 3.867449 | 0.21180                | 226.0  | 0.01711              |
+|          | 512        | 2.579237 | 0.02612                | 224.0  | 0.01151              |
+
+We varied the resolution for these tests and found that with increasing resolution, the arithmetic intensity decreased, making the code more memory-bound and thus decreasing the FLOP rate. 
+
+There are a few things to note about these results:
+* An exception to this trend is a sudden increase in both arithmetic intensity and FLOP rate from resolution 16 to 32 for the gravity kernel. This could be because the L1 cache was not fully utilitized when the resolution was only 16. 
+* The FLOP rate drops off faster than AI for higher resolutions, likely because the memory bandwidth is saturated.
+* The EulerSolve appears to be more memory-bound than Gravity with lower FLOP rates and AI at every resolution.
+
+![Performance](./Roofline_Images/performance.png)
