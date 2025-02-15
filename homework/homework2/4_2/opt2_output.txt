@@ -1,5 +1,3 @@
-
-Running opt2 with X=40
 nproc:40-procno:6-Time for pingpong: 0.343 (microsec)
 nproc:40-procno:19-Time for pingpong: 0.347 (microsec)
 nproc:40-procno:2-Time for pingpong: 0.345 (microsec)
