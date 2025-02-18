@@ -1,0 +1,23 @@
+# Sedov.yaml
+# parameter file for the Sod shock tube problem
+Sedov.energy: 20.0
+nx: 128
+ny: 128
+nz: 128
+cfl: 0.25
+t_max: 4.0
+dt_init: 0.1
+use_gravity: false
+problem_name: "Sedov"
+xmin: 0.0
+xmax: 10.0
+ymin: 0.0
+ymax: 10.0
+zmin: 0.0
+zmax: 10.0
+bc_xmin: outflow
+bc_xmax: outflow
+bc_ymin: outflow
+bc_ymax: outflow
+bc_zmin: outflow
+bc_zmax: outflow
