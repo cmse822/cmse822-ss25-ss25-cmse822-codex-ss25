@@ -32,8 +32,7 @@ for i in [1:N]:
 ```
 
 *Answer the following questions about the double i,j loop:*
-*1. Are the iterations of the inner loop independent, that is, could they be executed
-simultaneously?*
+*1. Are the iterations of the inner loop independent, that is, could they be executed simultaneously?*
 
 No, they are not. They require the value in the previous column (j) to already be computed. So each iteration of the inner loop depends on the result of the previous iteration.
 
