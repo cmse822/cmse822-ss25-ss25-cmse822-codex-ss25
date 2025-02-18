@@ -34,8 +34,6 @@
    vector<double> indata(mylocal),outdata(mylocal);
    int myfirst=0;
    MPI_Exscan( &mylocal,&myfirst,1,MPI_INT,MPI_SUM,comm);
-   for (int i=0; i<mylocal; i++)
-     indata[i] = myfirst+i;
  
    double leftdata=0.,rightdata=0.;
    int sendto,recvfrom;
@@ -68,6 +66,11 @@
    MPI_Isend(&mylocal, 1,MPI_DOUBLE, sendto,0, comm,&(requests[2]));
    MPI_Irecv(&rightdata,1,MPI_DOUBLE, recvfrom,0, comm,&(requests[3]));
  
+   // Modifying local array can be done while waiting
+   // (Latency hiding)
+   for (int i=0; i<mylocal; i++)
+     indata[i] = myfirst+i;
+
    // make sure all irecv/isend operations are concluded
    MPI_Waitall(4, requests, MPI_STATUSES_IGNORE);
  
