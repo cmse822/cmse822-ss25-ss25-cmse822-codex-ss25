@@ -120,5 +120,6 @@ There are a few things to note about these results:
 * In general, the Gravity solver achieves higher overall Arithmetic Intensity for a given resolution, as well as a higher FLOP rate.
 * Changing the resolution had a strong, consistent effect on the Arithmetic Intensity, where the Arithmetic Intensity decreases as resolution increases. This matches with our expectations, as the higher resolution cases involve much more overall data, and therefore requires more movement of data, limiting the operations per second it can achieve.
 * Changing the resolution had a much smaller effect on the FLOP rate, with less variation across the measured range.
+* There is some strange behavior in the gravity solver for resolution 16, likely because the problem is so small that Vtune has trouble measuring the values of interest, leading to an increase in measured bandwidth.
 
 ![Performance](./agoge_gc_results/roofline.png)
