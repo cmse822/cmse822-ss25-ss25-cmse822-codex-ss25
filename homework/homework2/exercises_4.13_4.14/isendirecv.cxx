@@ -7,6 +7,7 @@
  **** copyright Victor Eijkhout 2012-9
  ****
  **** MPI Exercise for Isend/Irecv
+ **** Exercise 4.13
  ****
  ****************************************************************/
 
@@ -38,27 +39,31 @@
    // -- for first/last process use MPI_PROC_NULL
  
    // get data from the left: who are you communicating with?
- /**** your code here ****/
-   MPI_Isend(&mydata,1,MPI_DOUBLE, sendto,0, comm,
- /**** your code here ****/
-         );
-   MPI_Irecv(&leftdata,1,MPI_DOUBLE, recvfrom,0, comm,
- /**** your code here ****/
-         );
+   if (procno == 0) {
+    sendto = MPI_PROC_NULL;
+   } else {
+    sendto = procno - 1;
+   }
+   recvfrom = sendto;
+
+   MPI_Isend(&mydata,1,MPI_DOUBLE, sendto,0, comm, requests);
+   MPI_Irecv(&leftdata,1,MPI_DOUBLE, recvfrom,0, comm, requests + 1);
  
    // get data from the right: who are you communicating with?
- /**** your code here ****/
-   MPI_Isend(&mydata,1,MPI_DOUBLE, sendto,0, comm,
- /**** your code here ****/
-         );
-   MPI_Irecv(&rightdata,1,MPI_DOUBLE, recvfrom,0, comm,
- /**** your code here ****/
-         );
+   if (procno == nprocs - 1) {
+    sendto = MPI_PROC_NULL;
+   } else {
+    sendto = procno + 1;
+   }
+   recvfrom = sendto;
+
+   MPI_Isend(&mydata,1,MPI_DOUBLE, sendto,0, comm, requests + 2);
+   MPI_Irecv(&rightdata,1,MPI_DOUBLE, recvfrom,0, comm, requests + 3);
  
    //
    // Now make sure all Isend/Irecv operations are completed
    //
- /**** your code here ****/
+   MPI_Waitall(4, requests, MPI_STATUSES_IGNORE);
    
    /*
     * Correctness check:
