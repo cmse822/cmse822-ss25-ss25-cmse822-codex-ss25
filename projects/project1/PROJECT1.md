@@ -114,11 +114,12 @@ Below are the results of running Intel VTune to analyze the performance of the A
 |          | 256        | 3.867449 | 0.21180                | 226.0  | 0.01711              |
 |          | 512        | 2.579237 | 0.02612                | 224.0  | 0.01151              |
 
-We varied the resolution for these tests and found that with increasing resolution, the arithmetic intensity decreased, making the code more memory-bound and thus decreasing the FLOP rate. 
+We varied the resolution for these tests and found that with increasing resolution, the arithmetic intensity decreased, and the FLOP rate decreased somewhat. In this plot, increasing resolution moves from right to left, with the lower-resolution cases achieving higher Arithmetic Inensity.
 
 There are a few things to note about these results:
-* An exception to this trend is a sudden increase in both arithmetic intensity and FLOP rate from resolution 16 to 32 for the gravity kernel. This could be because the L1 cache was not fully utilitized when the resolution was only 16. 
-* The FLOP rate drops off faster than AI for higher resolutions, likely because the memory bandwidth is saturated.
-* The EulerSolve appears to be more memory-bound than Gravity with lower FLOP rates and AI at every resolution.
+* In general, the Gravity solver achieves higher overal Arithmetic intensity for a given resolution, as well as a higher FLOP rate.
+* Changing the resolution had a strong, consistent effect on the Arithmetic Intensity, which decreased as resolution increased. This matched with out expectations, as the higher resolution cases involve much more overall data, and therefore requires more movement of data, limiting the operations per second it can achieve.
+* Changing the resolution had a much smaller effect on the FLOP rate, with less variation across the measured range.
+* The large jump shown by the Euler solver at the lowest resolution case is likely due to a mistake on the part of Vtune, where it might be incorrectly measuring the bandwidth.
 
 ![Performance](./agoge_gc_results/roofline.png)
