@@ -121,4 +121,4 @@ There are a few things to note about these results:
 * The FLOP rate drops off faster than AI for higher resolutions, likely because the memory bandwidth is saturated.
 * The EulerSolve appears to be more memory-bound than Gravity with lower FLOP rates and AI at every resolution.
 
-![Performance](./Roofline_Images/performance.png)
+![Performance](./agoge_gc_results/roofline.png)

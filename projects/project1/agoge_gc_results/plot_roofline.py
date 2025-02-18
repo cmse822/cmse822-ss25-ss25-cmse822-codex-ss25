@@ -64,3 +64,4 @@ ax.scatter(vtune_gravity_df['AI'], vtune_gravity_df['GFLOPS'], marker = '.', col
 ax.legend()
 
 plt.savefig("roofline.pdf", bbox_inches = "tight")
+plt.savefig("roofline.png", bbox_inches = "tight")
