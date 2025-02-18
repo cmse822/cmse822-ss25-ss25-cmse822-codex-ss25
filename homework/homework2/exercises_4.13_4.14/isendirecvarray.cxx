@@ -37,8 +37,7 @@
    for (int i=0; i<mylocal; i++)
      indata[i] = myfirst+i;
  
-   double
-     leftdata=0.,rightdata=0.;
+   double leftdata=0.,rightdata=0.;
    int sendto,recvfrom;
    MPI_Request requests[4];
  
@@ -48,21 +47,29 @@
    // -- for first/last process use MPI_PROC_NULL
  
    // first specify left neighbor data
- /**** your code here ****/
-   MPI_Isend( // send data to the left
- /**** your code here ****/
-         1,MPI_DOUBLE, sendto,0, comm,&(requests[0]));
+   if (procno == 0) {
+    sendto = MPI_PROC_NULL;
+   } else {
+    sendto = procno - 1;
+   }
+   recvfrom = sendto;
+
+   MPI_Isend(&mylocal, 1,MPI_DOUBLE, sendto,0, comm,&(requests[0]));
    MPI_Irecv(&leftdata,1,MPI_DOUBLE, recvfrom,0, comm,&(requests[1]));
  
    // then the right neighbor data
- /**** your code here ****/
-   MPI_Isend( // send data to the right
- /**** your code here ****/
-         1,MPI_DOUBLE, sendto,0, comm,&(requests[2]));
+   if (procno == nprocs - 1) {
+    sendto = MPI_PROC_NULL;
+   } else {
+    sendto = procno - 1;
+   }
+   recvfrom = sendto;
+
+   MPI_Isend(&mylocal, 1,MPI_DOUBLE, sendto,0, comm,&(requests[2]));
    MPI_Irecv(&rightdata,1,MPI_DOUBLE, recvfrom,0, comm,&(requests[3]));
  
    // make sure all irecv/isend operations are concluded
- /**** your code here ****/
+   MPI_Waitall(4, requests, MPI_STATUSES_IGNORE);
  
    /*
     * Do the averaging operation
