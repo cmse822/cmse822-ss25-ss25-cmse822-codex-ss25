@@ -17,26 +17,29 @@ where;
       ```T_1F_p/p``` is the  the part that can be parallelized
       
 
-Casse 1: For ```100``` processors
-From equation (2), we can write that; 
-      ```T_p = 1 + 1000 = 1001``` seconds 
+Case 1: For ```100``` processors
+Using equation (1), We know that we can write that; 
+      ```T_1 = 1 + 1000 = 1001 seconds``` 
+and
+      ```𝑇_1F_s= 1``` and this implies that;
+      ```F_s =1/T_1 =1/1001```
 But from equation (1), we can write that;
-      ```F_p = (1-F_s)```                    (3)
-Substituting ```T_P``` and equation (3) into equation (2) gives us;
-    ```1001 = T_1(F_s + (1-F_s)/100)```       (4)
-But we are told that the set up takes 1 second meaning that  ```𝑇_1F_s = 1.``` This implies that  ```𝑇_1 = 1/F_s.```
-Substituting for ```T_1``` in equation (4) gives us;
-    ```1001 =  1/F_s (F_s + (1-F_s)/100)```    (5)
-    ```1001F_s = (F_s + (1-F_s)/100)``` 
-    ```100100F_s = 100F_s + 1 - F_s```
-    ```100001F_s = 1```
-    ```F_s = 0.0000.9999```
-Therefore the speedup, ```S_p = T_1/p = (1/F_s)/p = 100001/100 = 1000.01```
-The Efficiency, ```E_p = S_p/p = 1000.01/100 = 10.0001```
+      ```F_p = (1-F_s)
+            = 1-1/1001
+            = 1000/1001
+            ```                    (3)
+Substituting for ```F_p``` into equation (2) gives us;
+    ```T_p = 1001(1/1001 + (1000/1001)/100)
+          = 1001(1/1001 + (1000/100100)
+          = 11``` 
+
+Therefore the speedup, ```S_p = T_1/T_p = 1001/11 = 91```
+The Efficiency, ```E_p = S_p/p = 91/100 = 0.91```
 
 Case 2: For ```500``` processors
-The speedup, ```S_p = T_1/p = 100001/500 = 200.002```
-The Efficiency, ```E_p = S_p/p = 200.02/500 = 0.400004```
+```T_p = 1001(1/1001 + (1000/1001)/500) = 3``` 
+The speedup, ```S_p = T_1/T_p = 1001/3 = 333.67```
+The Efficiency, ```E_p = S_p/p = (1001/3)/500 = 0.67```
 
 
     
