@@ -1,8 +1,8 @@
 ## Exercise 2.6
  
-Prove that $𝐸 = 1$ implies that all processors are active all the time. (Hint: suppose all processors finish their work in time $𝑇$, except for one processor in $𝑇^′ < 𝑇$. What is $𝑇_𝑝$ in this case? Explore the above relations.)
+Prove that $𝐸 = 1$ implies that all processors are active all the time. (Hint: suppose all processors finish their work in time $𝑇$, except for one processor in $𝑇′ < 𝑇$. What is $𝑇_𝑝$ in this case? Explore the above relations.)
 
-If we suppose that all but one processor finishes their work in time $T$ and the other finishing in time $T^{'}$ where $T^{'} \\leq T$, $T_p$ is the following:
+If we suppose that all but one processor finishes their work in time $T$ and the other finishing in time $T'$ where $T' \\leq T$, $T_p$ is the following:
 
 $$T_p = ((p-1)*T + T')$$
 
@@ -11,6 +11,8 @@ Which gives,
 $$S_p = \frac{T_1}{((p-1)*T + T')}$$
 
 and,
+
+$$E_p = \frac{T_1}{T_pp}$$
 
 $$E_p = \frac{T_1}{((p-1)*T + T')p}$$
 
