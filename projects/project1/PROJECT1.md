@@ -100,25 +100,26 @@ This suggests that the computational complexity of the Gravity Solver is $O(nlog
 Below are the results of running Intel VTune to analyze the performance of the Agoge GravityCollapse and EulerSolve kernels. 
 
 | Kernel   | Resolution | GFLOPS   | FLOP Rate (GFLOPS/sec) | GB/s   | Arithmetic Intensity |
-|----------|------------|---------|------------------------|--------|----------------------|
-| Euler    | 16         | 4.896176 | 0.72403                | 226.0  | 0.02166              |
-|          | 32         | 2.656359 | 0.22910                | 226.0  | 0.01175              |
-|          | 64         | 2.175986 | 0.15943                | 226.0  | 0.00963              |
-|          | 128        | 1.916873 | 0.11887                | 226.0  | 0.00848              |
-|          | 256        | 1.906676 | 0.07185                | 224.0  | 0.00851              |
-|          | 512        | 1.693823 | 0.01414                | 228.0  | 0.00743              |
-| Gravity  | 16         | 4.839837 | 0.96793                | 224.0  | 0.02161              |
-|          | 32         | 5.690762 | 1.11518                | 226.0  | 0.02518              |
-|          | 64         | 6.022634 | 1.00840                | 224.0  | 0.02689              |
-|          | 128        | 4.852295 | 0.55452                | 224.0  | 0.02166              |
-|          | 256        | 3.867449 | 0.21180                | 226.0  | 0.01711              |
-|          | 512        | 2.579237 | 0.02612                | 224.0  | 0.01151              |
+|----------|------------|----------|------------------------|--------|----------------------|
+| Euler    | 16         | 4.896176 | 0.72403                |   6.7  | 0.73077              |
+|          | 32         | 2.656359 | 0.22910                |   4.3  | 0.61776              |
+|          | 64         | 2.175986 | 0.15943                |  13.5  | 0.16118              |
+|          | 128        | 1.916873 | 0.11887                |  27.8  | 0.06895              |
+|          | 256        | 1.906676 | 0.07185                |  23.0  | 0.08290              |
+|          | 512        | 1.693823 | 0.01414                |  42.7  | 0.03967              |
+| Gravity  | 16         | 4.839837 | 0.96793                |   5.7  | 0.84909              |
+|          | 32         | 5.690762 | 1.11518                |   1.7  | 3.34750              |
+|          | 64         | 6.022634 | 1.00840                |   3.1  | 1.94279              |
+|          | 128        | 4.852295 | 0.55452                |  13.3  | 0.36483              |
+|          | 256        | 3.867449 | 0.21180                |  24.3  | 0.15915              |
+|          | 512        | 2.579237 | 0.02612                |  31.9  | 0.08085              |
 
-We varied the resolution for these tests and found that with increasing resolution, the arithmetic intensity decreased, making the code more memory-bound and thus decreasing the FLOP rate. 
+We varied the resolution for these tests and found that with increasing resolution, the arithmetic intensity decreased, and the FLOP rate decreased somewhat. In this plot, increasing resolution moves from right to left, with the lower-resolution cases achieving higher Arithmetic Inensity.
 
 There are a few things to note about these results:
-* An exception to this trend is a sudden increase in both arithmetic intensity and FLOP rate from resolution 16 to 32 for the gravity kernel. This could be because the L1 cache was not fully utilitized when the resolution was only 16. 
-* The FLOP rate drops off faster than AI for higher resolutions, likely because the memory bandwidth is saturated.
-* The EulerSolve appears to be more memory-bound than Gravity with lower FLOP rates and AI at every resolution.
+* In general, the Gravity solver achieves higher overall Arithmetic Intensity for a given resolution, as well as a higher FLOP rate.
+* Changing the resolution had a strong, consistent effect on the Arithmetic Intensity, where the Arithmetic Intensity decreases as resolution increases. This matches with our expectations, as the higher resolution cases involve much more overall data, and therefore requires more movement of data, limiting the operations per second it can achieve.
+* Changing the resolution had a much smaller effect on the FLOP rate, with less variation across the measured range.
+* There is some strange behavior in the gravity solver for resolution 16, likely because the problem is so small that it can fit entirely within cache, leading to an increase in the measured bandwidth.
 
-![Performance](./Roofline_Images/performance.png)
+![Performance](./agoge_gc_results/roofline.png)
