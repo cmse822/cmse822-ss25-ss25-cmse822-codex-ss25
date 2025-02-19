@@ -41,11 +41,19 @@ Answer
 Answer
 
 ## Exercise 4.1
+Implement the ping-pong program. Add a timer using `MPI_Wtime`. For the state argument of the receive call, use `MPI_ST` `TUS_IGNORE`. Run multiple ping-ons (say a thousand) and put the timer around the loop. The first run may take longer, try to discard it. Run your code with the two communicating processes first on the same node, then on different nodes. Do you see a difference? Then modify the program to use longer messages. How does the timing increase with message size?
 
 Answer
+This solution references the attatched code, pingpong.cxx... 
+
+Running that attatched code with two communicating processes on the same node shows... 
+
+Running the attatched code with two communicating processes on different nodes shows... 
+
+If we were to modify the program to use longer messages (ie. change `MPI_Send(send, 1, MPI_DOUBLE, processB, 0, comm);` to `MPI_Send(send, 1000, MPI_DOUBLE, processB, 0, comm);`), then we see a timing increase of... 
 
 ## Exercise 4.2
-
+Take your ping-pong program and modify it to let half the processors be source andd the other half the targets. Does the ping pong time increase? Does the observed behavior depend on how you choose the two sets?
 Answer
 
 ## Exercise 4.13
