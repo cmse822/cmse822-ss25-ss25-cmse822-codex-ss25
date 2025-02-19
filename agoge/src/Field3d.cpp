@@ -101,7 +101,7 @@ void Field3D::applyBCs() {
         // x-max
         for (int k = 0; k < NzGhost; k++) {
             for (int j = 0; j < NyGhost; j++) {
-                for (int iGhost = NxGhost - nghost; iGhost < NxGhost; iGhost++) {
+                for (int iGhost = Nx; iGhost < NxGhost; iGhost++) {
                     int iInterior = NxGhost - nghost - 1;  // interior boundary
                     int ghostIdx = index(iGhost, j, k);
 
