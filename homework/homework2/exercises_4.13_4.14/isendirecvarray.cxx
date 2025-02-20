@@ -75,20 +75,17 @@
    for (int i=0; i<mylocal; i++)
      indata[i] = myfirst+i;
 
+   // Compute outdata for all inner elements
+   // Neighbor data is not required
+   for (int i=1; i<mylocal-1; i++)
+     outdata[i] = indata[i-1] + indata[i] + indata[i+1];
+
    // make sure all irecv/isend operations are concluded
    MPI_Waitall(4, requests, MPI_STATUSES_IGNORE);
  
-   /*
-    * Do the averaging operation
-    * Note that leftdata==rightdata==0 if not explicitly received.
-    */
-   for (int i=0; i<mylocal; i++)
-     if (i==0)
-       outdata[i] = leftdata + indata[i] + indata[i+1];
-     else if (i==mylocal-1)
-       outdata[i] = indata[i-1] + indata[i] + rightdata;
-     else
-       outdata[i] = indata[i-1] + indata[i] + indata[i+1];
+   // Compute outdata for boundaries
+   outdata[0] = leftdata + indata[0] + indata[1];
+   outdata[mylocal-1] = indata[mylocal-2] + indata[mylocal-1] + rightdata;
    
    /*
     * Check correctness of the result:
