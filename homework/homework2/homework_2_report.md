@@ -179,12 +179,12 @@ This decrease as n grows makes the speedup drop within the function of n.
 
 ## Exercise 4.2
 
-### [Exercise 4.2 Code](https://github.com/cmse822/ss25-fellowship/blob/main/homework/homework2/exercise4_1.cpp)
+### [Exercise 4.2 Code](https://github.com/cmse822/ss25-fellowship/blob/main/homework/homework2/exercise4_2.cpp)
 
 ## Exercise 4.13
 
-### [Exercise 4.13 Code](https://github.com/cmse822/ss25-fellowship/blob/main/homework/homework2/exercise4_1.cpp)
+### [Exercise 4.13 Code](https://github.com/cmse822/ss25-fellowship/blob/main/homework/homework2/exercise4_13.cpp)
 
 ## Exercise 4.14
 
-### [Exercise 4.14 Code](https://github.com/cmse822/ss25-fellowship/blob/main/homework/homework2/exercise4_1.cpp)
+### [Exercise 4.14 Code](https://github.com/cmse822/ss25-fellowship/blob/main/homework/homework2/exercise4_14.cpp)
