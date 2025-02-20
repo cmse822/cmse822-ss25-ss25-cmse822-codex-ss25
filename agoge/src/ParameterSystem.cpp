@@ -23,10 +23,11 @@ void ParameterSystem::setDefaults() {
     defaults_["zmin"] = "0.0";
     defaults_["zmax"] = "1.0";
     defaults_["sound_crossings"] = "1.0";
+    defaults_["dt_init"] = "0.01";
+    defaults_["t_max"] = "1.0";
 
     defaults_["problem_name"] = "\"sod\"";
 
-    // NEW default boundary conditions
     // possible values: "periodic", "outflow"
     defaults_["bc_xmin"] = "periodic";
     defaults_["bc_xmax"] = "periodic";
@@ -38,6 +39,9 @@ void ParameterSystem::setDefaults() {
     // new default
     defaults_["do_euler_update"] =
         "true";  // or "true" if you want skip by default
+    
+    // Turn off IO         
+    defaults_["do_io"] = "true";
 }
 
 void ParameterSystem::addDefault(const std::string &key,
