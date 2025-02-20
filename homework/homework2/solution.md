@@ -44,19 +44,35 @@ Answer
 Implement the ping-pong program. Add a timer using `MPI_Wtime`. For the state argument of the receive call, use `MPI_ST` `TUS_IGNORE`. Run multiple ping-ons (say a thousand) and put the timer around the loop. The first run may take longer, try to discard it. Run your code with the two communicating processes first on the same node, then on different nodes. Do you see a difference? Then modify the program to use longer messages. How does the timing increase with message size?
 
 ## Answer
-Please see the attatched code, pingpong.cxx, which is part of this solution. 
+Please see the attatched folder, pingpong_code, for the code associated with this exercise. 
 
-To have the source and target processors close together (ie. on the same node), I set:
-```int processA = 0, processB=1;```
-Running the attatched code with `NEXPERIMENTS 10000`, we see that...  
+The program measures the communication time between two processes using `MPI_Wtime()`. To account for delays while the code is initializing, the first iteration is discarded from the timing calculation. The code is ran with differing message sizes, with the processes on the same node and on different nodes. 
+* `processA = 0` means rank 0 is the sender (initially).
+* `processB = 1` means rank 1 is the receiver (initially). 
 
-Now, to have the source and target processors far from each other (ie. on different nodes), I set:
-```int processA = , processB = ;```
-Running the attatched code with `NEXPERIMENTS 10000` again, we see that...
+#### Running on both processes on a single node:
+```c
+#SBATCH --nodes=1             # Run on 1 node
+#SBATCH --ntasks=2            # Total number of MPI tasks
+#SBATCH --ntasks-per-node=2   # Set 2 task per node
+```
+* MESSAGE_SIZE 1: Time for pingpong: 0.330 (microsec)
+* MESSAGE_SIZE 8: Time for pingpong: 0.430 (microsec)
+* MESSAGE_SIZE 64: Time for pingpong: 1.048 (microsec)
+* MESSAGE_SIZE 1024: Time for pingpong: 5.032 (microsec)
 
-Comment on differences here. 
+#### Running processes on two different nodes: 
+```c
+#SBATCH --nodes=2                     # Run on 2 nodes
+#SBATCH --ntasks=2                    # Total number of MPI tasks
+#SBATCH --ntasks-per-node=1   # Set 1 task per node
+```
+* MESSAGE_SIZE 1: Time for pingpong: 0.365 (microsec)
+* MESSAGE_SIZE 8: Time for pingpong: 0.441 (microsec)
+* MESSAGE_SIZE 64: Time for pingpong: 1.075 (microsec)
+* MESSAGE_SIZE 1024: Time for pingpong: 5.420 (microsec)
 
-Now, I redo the two steps above, but I add the line `#define MESSAGE_SIZE 10000`. For two processes on the same node with increased message size, we see that ..... For two processes on different nodes, we see that.... . Thus, we conclude that .... 
+In conclusion, the pingoing test shows that communication time unsurprisingly increases with message size and that inter-node communication introduces a small delay compared to intra-node communication.
 
 ## Exercise 4.2
 Take your ping-pong program and modify it to let half the processors be source andd the other half the targets. Does the ping pong time increase? Does the observed behavior depend on how you choose the two sets?
