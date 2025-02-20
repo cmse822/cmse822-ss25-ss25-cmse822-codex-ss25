@@ -17,36 +17,27 @@
  using namespace std;
  
  int main() {
- 
    MPI_Comm comm = MPI_COMM_WORLD;
    int nprocs, procno;
    stringstream proctext;
    
    MPI_Init(0,0);
- 
    MPI_Comm_size(comm,&nprocs);
    MPI_Comm_rank(comm,&procno);
  
  #define NEXPERIMENTS 10000
- 
-   // Exercise:
-   // -- set source and target processors two ways:
-   //    close together and far apart
-   // -- run the experiment both ways.
-   int processA,processB;
- /**** your code here ****/
-   double t, send[10000],recv[10000]; send[0] = 1.1;
+ #define MESSAGE_SIZE 1 
+
+   int processA=0,processB=1;
+   double t, send[10000], recv[10000]; 
+   send[0] = 1.1;
+   
    if (procno==processA) {
-     t = MPI_Wtime();
+     t = MPI_Wtime(); // start the timer
+
      for (int n=0; n<NEXPERIMENTS; n++) {
-       MPI_Send(send,1,MPI_DOUBLE,
-            // fill in dest and tag
- /**** your code here ****/
-            comm);
-       MPI_Recv(recv,1,MPI_DOUBLE,
-            // fill in source and tag
- /**** your code here ****/
-            comm,MPI_STATUS_IGNORE);
+       MPI_Send(send,MESSAGE_SIZE,MPI_DOUBLE,processB,0,comm);
+       MPI_Recv(recv,MESSAGE_SIZE,MPI_DOUBLE,processB,0,comm,MPI_STATUS_IGNORE);
      }
      t = MPI_Wtime()-t; t /= NEXPERIMENTS;
      {
@@ -56,17 +47,10 @@
      cerr << proctext.str(); proctext.clear();
    } else if (procno==processB) {
      for (int n=0; n<NEXPERIMENTS; n++) {
-       MPI_Recv(recv,1,MPI_DOUBLE,
-            // fill in source and tag
- /**** your code here ****/
-            comm,MPI_STATUS_IGNORE);
-       MPI_Send(recv,1,MPI_DOUBLE,
-            // fill in dest and tag
- /**** your code here ****/
-            comm);
+       MPI_Recv(recv,MESSAGE_SIZE,MPI_DOUBLE,processA,0,comm,MPI_STATUS_IGNORE);
+       MPI_Send(recv,MESSAGE_SIZE,MPI_DOUBLE,processA,0,comm);
      }
    }
- 
    MPI_Finalize();
    return 0;
  }
