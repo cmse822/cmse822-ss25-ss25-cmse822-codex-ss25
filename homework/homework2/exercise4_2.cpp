@@ -48,6 +48,7 @@
        MPI_Recv(recv,1,MPI_DOUBLE,
             // fill in source and tag
  /**** your code here ****/
+            processB, 0,
             comm,MPI_STATUS_IGNORE);
      }
      t = MPI_Wtime()-t; t /= NEXPERIMENTS;
@@ -62,9 +63,10 @@
             // fill in source and tag
  /**** your code here ****/
  //	       comm,MPI_STATUS_IGNORE);
-       MPI_Send(recv,1,MPI_DOUBLE,
+       MPI_Send(send,1,MPI_DOUBLE,
             // fill in dest and tag
  /**** your code here ****/
+            processA, 0,
             comm);
      }
    }
