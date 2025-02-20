@@ -52,9 +52,9 @@ The program measures the communication time between two processes using `MPI_Wti
 
 #### Running on both processes on a single node:
 ```c
-#SBATCH --nodes=1             # Run on 1 node
-#SBATCH --ntasks=2            # Total number of MPI tasks
-#SBATCH --ntasks-per-node=2   # Set 2 task per node
+#SBATCH --nodes=1            # Run on 1 node
+#SBATCH --ntasks=2           # Total number of MPI tasks
+#SBATCH --ntasks-per-node=2  # Set 2 task per node
 ```
 * MESSAGE_SIZE 1: Time for pingpong: 0.330 (microsec)
 * MESSAGE_SIZE 8: Time for pingpong: 0.430 (microsec)
@@ -63,9 +63,9 @@ The program measures the communication time between two processes using `MPI_Wti
 
 #### Running processes on two different nodes: 
 ```c
-#SBATCH --nodes=2                     # Run on 2 nodes
-#SBATCH --ntasks=2                    # Total number of MPI tasks
-#SBATCH --ntasks-per-node=1   # Set 1 task per node
+#SBATCH --nodes=2            # Run on 2 nodes
+#SBATCH --ntasks=2           # Total number of MPI tasks
+#SBATCH --ntasks-per-node=1  # Set 1 task per node
 ```
 * MESSAGE_SIZE 1: Time for pingpong: 0.365 (microsec)
 * MESSAGE_SIZE 8: Time for pingpong: 0.441 (microsec)
