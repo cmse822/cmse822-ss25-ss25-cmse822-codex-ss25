@@ -44,6 +44,10 @@
    //    once to get data from the left, once from the right
    // -- for first/last process use MPI_PROC_NULL
  
+   // Data to be sent
+   double first = myfirst;
+   double last = myfirst + mylocal - 1;
+
    // first specify left neighbor data
    if (procno == 0) {
     sendto = MPI_PROC_NULL;
@@ -51,20 +55,20 @@
     sendto = procno - 1;
    }
    recvfrom = sendto;
-
-   MPI_Isend(&mylocal, 1,MPI_DOUBLE, sendto,0, comm,&(requests[0]));
-   MPI_Irecv(&leftdata,1,MPI_DOUBLE, recvfrom,0, comm,&(requests[1]));
+  
+   MPI_Isend(&first, 1,MPI_DOUBLE, sendto,0, comm,requests);
+   MPI_Irecv(&leftdata,1,MPI_DOUBLE, recvfrom,0, comm,requests + 1);
  
    // then the right neighbor data
    if (procno == nprocs - 1) {
     sendto = MPI_PROC_NULL;
    } else {
-    sendto = procno - 1;
+    sendto = procno + 1;
    }
    recvfrom = sendto;
 
-   MPI_Isend(&mylocal, 1,MPI_DOUBLE, sendto,0, comm,&(requests[2]));
-   MPI_Irecv(&rightdata,1,MPI_DOUBLE, recvfrom,0, comm,&(requests[3]));
+   MPI_Isend(&last, 1,MPI_DOUBLE, sendto,0, comm,requests + 2);
+   MPI_Irecv(&rightdata,1,MPI_DOUBLE, recvfrom,0, comm,requests + 3);
  
    // Modifying local array can be done while waiting
    // (Latency hiding)
