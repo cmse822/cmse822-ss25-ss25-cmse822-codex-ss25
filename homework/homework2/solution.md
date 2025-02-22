@@ -78,7 +78,18 @@ In conclusion, the pingoing test shows that communication time unsurprisingly in
 Take your ping-pong program and modify it to let half the processors be source and the other half the targets. Does the ping pong time increase? Does the observed behavior depend on how you choose the two sets?
 
 ## Answer
-So, instead of only considering two processes, we'll consider...
+This version of the pingpong code splits the processes into two groups:
+* The first half are the senders.
+* The second half are the receivers.
+
+| process pair | 1B (us) | 8B (us) | 64B (us) | 1024B (us) |  
+| 1 <-> 7 | 2.060 | 2.695 | 4.096 | 10.058 |
+| 2 <-> 8 | 2.097 | 2.734 | 4.070 | 10.004 |
+| 3 <-> 9 | 2.054 | 2.422 | 4.090 | 9.995 |
+| 0 <-> 6 | 1.955 | 2.434 | 3.821 | 9.924 |
+| 4 <-> 10| 1.921 | 2.736 | 3.711 | 9.982 |
+| 5 <-> 11| 1.915 | 2.452 | 3.740 | 9.960 |
+
 
 ## Exercise 4.13
 
