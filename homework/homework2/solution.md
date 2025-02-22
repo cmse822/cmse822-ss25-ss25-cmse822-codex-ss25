@@ -114,7 +114,7 @@ This version of the pingpong code splits the processes into two groups:
 | 0 <-> 6    | 0.375   | 0.485   | 1.134    | 4.663     |
 | 5 <-> 11   | 0.811   | 1.253   | 2.444    | 8.724     |
 
-
+Thus, when running across two nodes, the pingpong time increases significantly due to network communication overhead. There is roughly a x5 slowdown in the 1B message as it goes from roughly ~0.4us to ~2.0us, with greater message sizes increasing even more. Thus, **latency** is significantly higher  for inter-node communication and **bandwidth** is lower since larger messages experience a higher cost across nodes as the network link becomes a bottleneck. 
 
 ## Exercise 4.13
 
