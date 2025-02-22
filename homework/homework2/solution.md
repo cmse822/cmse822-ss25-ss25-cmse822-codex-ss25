@@ -82,14 +82,14 @@ This version of the pingpong code splits the processes into two groups:
 * The first half are the senders.
 * The second half are the receivers.
 
-#### Running processes on two different nodes (lac-255 and lac-254):
+#### Running processes on two different nodes:
 ```c
 #SBATCH --nodes=2             # Run on 2 nodes
 #SBATCH --ntasks=12           # Total number of MPI tasks
-#SBATCH --ntasks-per-node=6   # Set 6 task per node
+#SBATCH --ntasks-per-node=6   # Set 6 tasks per node
 ```
 
-| process pair | 1B (us) | 8B (us) | 64B (us) | 1024B (us) |
+| process pair [lac-255 <-> lac-254] | 1B (us) | 8B (us) | 64B (us) | 1024B (us) |
 |--------------|---------|---------|----------|------------|  
 | 1 <-> 7 | 2.060 | 2.695 | 4.096 | 10.058 |
 | 2 <-> 8 | 2.097 | 2.734 | 4.070 | 10.004 |
@@ -97,6 +97,23 @@ This version of the pingpong code splits the processes into two groups:
 | 0 <-> 6 | 1.955 | 2.434 | 3.821 | 9.924 |
 | 4 <-> 10| 1.921 | 2.736 | 3.711 | 9.982 |
 | 5 <-> 11| 1.915 | 2.452 | 3.740 | 9.960 |
+
+#### Running processes on the same node:
+```c
+#SBATCH --nodes=1             # Run on 1 node
+#SBATCH --ntasks=12           # Total number of MPI tasks
+#SBATCH --ntasks-per-node=12  # Set 12 tasks per node
+```
+
+| Process Pair | 1B (µs) [lac-010] | 8B (µs) [lac-021] | 64B (µs) [lac-361] | 1024B (µs) [lac-361] |
+|-------------|---------|---------|----------|-----------|
+| 1 <-> 7    | 0.396   | 0.486   | 1.190    | 4.661     |
+| 2 <-> 8    | 0.408   | 0.493   | 1.176    | 4.666     |
+| 3 <-> 9    | 0.409   | 0.504   | 1.175    | 4.645     |
+| 4 <-> 10   | 0.803   | 1.190   | 1.165    | 4.710     |
+| 0 <-> 6    | 0.375   | 0.485   | 1.134    | 4.663     |
+| 5 <-> 11   | 0.811   | 1.253   | 2.444    | 8.724     |
+
 
 
 ## Exercise 4.13
