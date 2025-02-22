@@ -56,10 +56,12 @@ The program measures the communication time between two processes using `MPI_Wti
 #SBATCH --ntasks=2           # Total number of MPI tasks
 #SBATCH --ntasks-per-node=2  # Set 2 task per node
 ```
-* MESSAGE_SIZE 1: Time for pingpong: 0.330 (microsec)
-* MESSAGE_SIZE 8: Time for pingpong: 0.430 (microsec)
-* MESSAGE_SIZE 64: Time for pingpong: 1.048 (microsec)
-* MESSAGE_SIZE 1024: Time for pingpong: 5.032 (microsec)
+| message size | pingpong time [node]|
+|--------------|---------------|
+|  1B  | 0.385 [lac-021] |
+|  8B  | 0.474 [lac-010] |
+| 64B  | 1.098 [lac-010] |
+| 1024B| 4.874 [lac-021] |
 
 #### Running processes on two different nodes: 
 ```c
@@ -67,17 +69,21 @@ The program measures the communication time between two processes using `MPI_Wti
 #SBATCH --ntasks=2           # Total number of MPI tasks
 #SBATCH --ntasks-per-node=1  # Set 1 task per node
 ```
-* MESSAGE_SIZE 1: Time for pingpong: 0.365 (microsec)
-* MESSAGE_SIZE 8: Time for pingpong: 0.441 (microsec)
-* MESSAGE_SIZE 64: Time for pingpong: 1.075 (microsec)
-* MESSAGE_SIZE 1024: Time for pingpong: 5.420 (microsec)
+| message size | pingpong time [nodes] |
+|--------------|---------------|
+|  1B  | 2.146 [lac-023 <-> lac-021] |
+|  8B  | 3.057 [lac-023 <-> lac-021] |
+| 64B  | 5.058 [lac-023 <-> lac-021] |
+| 1024B| 12.384 [lac-023 <-> lac-021] |
 
-In conclusion, the pingoing test shows that communication time unsurprisingly increases with message size and that inter-node communication introduces a small delay compared to intra-node communication.
+In conclusion, the pingoing test shows that communication time unsurprisingly increases with message size and that inter-node communication introduces significant delay compared to intra-node communication.
 
 ## Exercise 4.2
 Take your ping-pong program and modify it to let half the processors be source and the other half the targets. Does the ping pong time increase? Does the observed behavior depend on how you choose the two sets?
 
 ## Answer
+Please see `/homework2/pingpong/ex4.2/...` for the code associated with this exercise.
+
 This version of the pingpong code splits the processes into two groups:
 * The first half are the senders.
 * The second half are the receivers.
