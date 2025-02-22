@@ -13,15 +13,22 @@
 #include <iomanip>
 #include <sstream>
 #include <mpi.h>
+#include <unistd.h> // for hostname
+#include <limits.h> // for HOST_NAME_MAX
+
 using namespace std;
 
 int main() {
     MPI_Comm comm = MPI_COMM_WORLD;
     int nprocs, procno;
     stringstream proctext;
+    char hostname[HOST_NAME_MAX];	
+
     MPI_Init(0, 0);
     MPI_Comm_size(comm, &nprocs);
     MPI_Comm_rank(comm, &procno);
+
+    gethostname(hostname, HOST_NAME_MAX); // get the hostname
 
     #define NEXPERIMENTS 1001  // One extra iteration to discard
     #define MESSAGE_SIZE 1
@@ -33,6 +40,9 @@ int main() {
     double send[10000], recv[10000];
 
     send[0] = 1.1;
+
+    //print process rank and its node info
+    cout << "process " << procno << "is running on node " << hostname << endl;
 
     if (procno == processA) {
         double total_time = 0.0;
