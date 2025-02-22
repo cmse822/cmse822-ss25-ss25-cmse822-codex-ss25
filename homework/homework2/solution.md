@@ -82,7 +82,15 @@ This version of the pingpong code splits the processes into two groups:
 * The first half are the senders.
 * The second half are the receivers.
 
-| process pair | 1B (us) | 8B (us) | 64B (us) | 1024B (us) |  
+#### Running processes on two different nodes (lac-255 and lac-254):
+```c
+#SBATCH --nodes=2             # Run on 2 nodes
+#SBATCH --ntasks=12           # Total number of MPI tasks
+#SBATCH --ntasks-per-node=6   # Set 6 task per node
+```
+
+| process pair | 1B (us) | 8B (us) | 64B (us) | 1024B (us) |
+|--------------|---------|---------|----------|------------|  
 | 1 <-> 7 | 2.060 | 2.695 | 4.096 | 10.058 |
 | 2 <-> 8 | 2.097 | 2.734 | 4.070 | 10.004 |
 | 3 <-> 9 | 2.054 | 2.422 | 4.090 | 9.995 |
