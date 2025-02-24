@@ -54,7 +54,13 @@ We can conclude that if the computational cost of the serial part of the problem
 
 ## Exercise 2.19
 
-Answer
+For weak scaling if given that $n=p$ :
+$$ \textrm{speed-up} = \frac{p\log{p}}{(\log{p})^2} = \frac{p}{\log{p}}$$
+
+For strong scaling the size of problem is fixed and number of processor is $p$. For bitonic sort we know $\Theta(n,p)=\dfrac{n(\log{n})^2}{p}$
+$$ \textrm{speed-up} = \frac{n\log{n}}{n\log{n}^2/p} = \frac{p}{\log{n}}$$
+Which is a decreasing function of $n$.
+
 
 ## Exercise 4.1
 
