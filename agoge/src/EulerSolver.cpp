@@ -7,6 +7,7 @@
 
 #include "Config.hpp"
 #include "Field3d.hpp"
+#include "ParameterSystem.hpp"
 #include "PerformanceMonitor.hpp"
 
 namespace agoge {
@@ -135,9 +136,9 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
     std::vector<std::array<double, 5>> Fx((nx + 1) * ny * nz);
 
     // function to index flux face in x
-    auto fxIndex = [&](int iF, int jIn, int kIn) {
-        // iF in [0..nx], jIn in [0..ny-1], kIn in [0..nz-1]
-        return iF + (nx + 1) * (jIn + ny * kIn);
+    auto fxIndex = [&](int iF, int j, int k) {
+        // iF ∈ [0..nx], j ∈ [0..ny-1], k ∈ [0..nz-1]
+        return iF + (nx + 1) * (j + ny * k);
     };
 
     // compute fluxes at i-1/2 for iF in [0..nx],
@@ -177,16 +178,13 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
     }
 
     // now accumulate flux differences for interior cells
-    for (int kIn = 0; kIn < nz; kIn++) {
-        for (int jIn = 0; jIn < ny; jIn++) {
-            for (int iIn = 0; iIn < nx; iIn++) {
-                int iG = iIn + Q.nghost;
-                int jG = jIn + Q.nghost;
-                int kG = kIn + Q.nghost;
-                int c = Q.index(iG, jG, kG);
+    for (int k = 0; k < nz; k++) {
+        for (int j = 0; j < ny; j++) {
+            for (int i = 0; i < nx; i++) {
+                int c = Q.interiorIndex(i, j, k);
 
-                auto FL = Fx[fxIndex(iIn, jIn, kIn)];      // flux at left face
-                auto FR = Fx[fxIndex(iIn + 1, jIn, kIn)];  // flux at right face
+                auto FL = Fx[fxIndex(i, j, k)];      // flux at left face
+                auto FR = Fx[fxIndex(i + 1, j, k)];  // flux at right face
 
                 LQ.rho[c] -= (FR[0] - FL[0]) / dx;
                 LQ.rhou[c] -= (FR[1] - FL[1]) / dx;
@@ -202,13 +200,137 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
     // similarly define (nxGhost * (ny+1)* nzGhost) flux array or just (nx *
     // (ny+1)* nz) if only interior for brevity, I show a direct approach...
     // ...
-    // (omitted for brevity, same pattern as x-sweep)
     //===========================
+    std::vector<std::array<double, 5>> Fy((ny + 1) * nx * nz);
+
+    // function to index flux face in y
+    auto fyIndex = [&](int i, int jF, int k) {
+        // jF ∈ [0..ny], i ∈ [0..nx-1], k ∈ [0..nz-1]
+        return jF + (ny + 1) * (i + nx * k);
+    };
+
+    // compute fluxes at j-1/2 for jF in [0..ny],
+    for (int k = 0; k < nz; k++) {
+        for (int i = 0; i < nx; i++) {
+            for (int j = 0; j <= ny; j++) {
+                // left cell is jF-1, right cell
+                // is jF, in interior coords
+                // if jF=0 => left cell is jF-1= -1 => that's in ghost
+                // region but Q has ghost cells => so let jL= jF-1.
+
+                int cL = Q.interiorIndex(i, j - 1, k);
+                int cR = Q.interiorIndex(i, j, k);
+
+                // slope-limited states
+                auto UL = getU(cL);
+                auto UR = getU(cR);
+
+                // we can do minmod slope from neighbors cL-1, cL+1, etc.,
+                // or do simpler approach for brevity, let's do 1st-order
+
+                double aL = waveSpeed(UL[0], UL[1], UL[2], UL[3], UL[4]);
+                double aR = waveSpeed(UR[0], UR[1], UR[2], UR[3], UR[4]);
+                double alpha = std::max(aL, aR);
+
+                auto fL = fluxY(UL[0], UL[1], UL[2], UL[3], UL[4]);
+                auto fR = fluxY(UR[0], UR[1], UR[2], UR[3], UR[4]);
+
+                std::array<double, 5> faceFlux;
+                for (int n = 0; n < 5; n++) {
+                    faceFlux[n] =
+                        0.5 * (fL[n] + fR[n]) - 0.5 * alpha * (UR[n] - UL[n]);
+                }
+
+                Fy[fyIndex(i, j, k)] = faceFlux;
+            }
+        }
+    }
+
+    // now accumulate flux differences for interior cells
+    for (int k = 0; k < nz; k++) {
+        for (int i = 0; i < nx; i++) {
+            for (int j = 0; j < ny; j++) {
+                int c = Q.interiorIndex(i, j, k);
+
+                auto FL = Fy[fyIndex(i, j, k)];      // flux at left face
+                auto FR = Fy[fyIndex(i, j + 1, k)];  // flux at right face
+
+                LQ.rho[c] -= (FR[0] - FL[0]) / dy;
+                LQ.rhou[c] -= (FR[1] - FL[1]) / dy;
+                LQ.rhov[c] -= (FR[2] - FL[2]) / dy;
+                LQ.rhow[c] -= (FR[3] - FL[3]) / dy;
+                LQ.E[c] -= (FR[4] - FL[4]) / dy;
+            }
+        }
+    }
 
     //===========================
     // Step3: Z-sweep
     // same pattern
     //===========================
+    std::vector<std::array<double, 5>> Fz((nz + 1) * nx * ny);
+
+    // function to index flux face in y
+    auto fzIndex = [&](int i, int j, int kF) {
+        // kF ∈ [0..nz], i ∈ [0..nx-1], j ∈ [0..ny-1]
+        return kF + (nz + 1) * (i + nx * j);
+    };
+
+    // compute fluxes at k-1/2 for kF in [0..nz],
+    for (int j = 0; j < ny; j++) {
+        for (int i = 0; i < nx; i++) {
+            for (int k = 0; k <= nz; k++) {
+                // left cell is k-1, right cell is k, in interior coords
+                // if k=0 => left cell is k-1= -1 => that's in ghost
+                // region but Q has ghost cells => so let kL= k-1.
+
+                int cL = Q.interiorIndex(i, j, k - 1);
+                int cR = Q.interiorIndex(i, j, k);
+
+                // slope-limited states
+                auto UL = getU(cL);
+                auto UR = getU(cR);
+
+                // we can do minmod slope from neighbors cL-1, cL+1, etc.,
+                // or do simpler approach for brevity, let's do 1st-order
+
+                double aL = waveSpeed(UL[0], UL[1], UL[2], UL[3], UL[4]);
+                double aR = waveSpeed(UR[0], UR[1], UR[2], UR[3], UR[4]);
+                double alpha = std::max(aL, aR);
+
+                auto fL = fluxZ(UL[0], UL[1], UL[2], UL[3], UL[4]);
+                auto fR = fluxZ(UR[0], UR[1], UR[2], UR[3], UR[4]);
+
+                std::array<double, 5> faceFlux;
+                for (int n = 0; n < 5; n++) {
+                    faceFlux[n] =
+                        0.5 * (fL[n] + fR[n]) - 0.5 * alpha * (UR[n] - UL[n]);
+                }
+
+                Fz[fzIndex(i, j, k)] = faceFlux;
+            }
+        }
+    }
+
+    // now accumulate flux differences for interior cells
+    // I am mildly skeptical of the correctness of this code....
+    for (int j = 0; j < ny; j++) {
+        for (int i = 0; i < nx; i++) {
+            for (int k = 0; k < nz; k++) {
+
+                int c = Q.interiorIndex(i, j, k);
+
+                auto FL = Fz[fzIndex(i, j, k)];      // flux at left face
+                auto FR = Fz[fzIndex(i, j, k + 1)];  // flux at right face
+
+                LQ.rho[c] -= (FR[0] - FL[0]) / dz;
+                LQ.rhou[c] -= (FR[1] - FL[1]) / dz;
+                LQ.rhov[c] -= (FR[2] - FL[2]) / dz;
+                LQ.rhow[c] -= (FR[3] - FL[3]) / dz;
+                LQ.E[c] -= (FR[4] - FL[4]) / dz;
+            }
+        }
+    }
 
     // Then add gravity for interior cells
     if (gravField) {
@@ -226,7 +348,6 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
                            w = Q.rhow[c] / r;
                     double gx = 0, gy = 0, gz = 0;
                     computeGravityAccel(*gravField, i, j, k, gx, gy, gz);
-
                     LQ.rhou[c] += r * gx;
                     LQ.rhov[c] += r * gy;
                     LQ.rhow[c] += r * gz;
@@ -250,7 +371,6 @@ void runRK2(Field3D &Q, double dt) {
     // create Qtemp, LQ etc. sized with same ghost
     Field3D Qtemp(Q.Nx, Q.Ny, Q.Nz, Q.bbox, Q.nghost);
     Field3D LQ(Q.Nx, Q.Ny, Q.Nz, Q.bbox, Q.nghost);
-    Field3D LQtemp(Q.Nx, Q.Ny, Q.Nz, Q.bbox, Q.nghost);
 
     // copy BC flags
     Qtemp.bc_xmin = Q.bc_xmin;
@@ -266,13 +386,6 @@ void runRK2(Field3D &Q, double dt) {
     LQ.bc_ymax = Q.bc_ymax;
     LQ.bc_zmin = Q.bc_zmin;
     LQ.bc_zmax = Q.bc_zmax;
-
-    LQtemp.bc_xmin = Q.bc_xmin;
-    LQtemp.bc_xmax = Q.bc_xmax;
-    LQtemp.bc_ymin = Q.bc_ymin;
-    LQtemp.bc_ymax = Q.bc_ymax;
-    LQtemp.bc_zmin = Q.bc_zmin;
-    LQtemp.bc_zmax = Q.bc_zmax;
 
     // copy data from Q => Qtemp
     Qtemp.rho = Q.rho;
@@ -301,17 +414,17 @@ void runRK2(Field3D &Q, double dt) {
     }
 
     // Stage 2
-    computeL(Qtemp, LQtemp, &Qtemp);
+    computeL(Qtemp, LQ, &Qtemp);
     for (size_t n = 0; n < tot; n++) {
-        double newRho = 0.5 * (Q.rho[n] + Qtemp.rho[n] + dt * LQtemp.rho[n]);
-        double newE = 0.5 * (Q.E[n] + Qtemp.E[n] + dt * LQtemp.E[n]);
+        double newRho = 0.5 * (Q.rho[n] + Qtemp.rho[n] + dt * LQ.rho[n]);
+        double newE = 0.5 * (Q.E[n] + Qtemp.E[n] + dt * LQ.E[n]);
         if (newRho < 1e-14) newRho = 1e-14;
         if (newE < 1e-14) newE = 1e-14;
 
         Q.rho[n] = newRho;
-        Q.rhou[n] = 0.5 * (Q.rhou[n] + Qtemp.rhou[n] + dt * LQtemp.rhou[n]);
-        Q.rhov[n] = 0.5 * (Q.rhov[n] + Qtemp.rhov[n] + dt * LQtemp.rhov[n]);
-        Q.rhow[n] = 0.5 * (Q.rhow[n] + Qtemp.rhow[n] + dt * LQtemp.rhow[n]);
+        Q.rhou[n] = 0.5 * (Q.rhou[n] + Qtemp.rhou[n] + dt * LQ.rhou[n]);
+        Q.rhov[n] = 0.5 * (Q.rhov[n] + Qtemp.rhov[n] + dt * LQ.rhov[n]);
+        Q.rhow[n] = 0.5 * (Q.rhow[n] + Qtemp.rhow[n] + dt * LQ.rhow[n]);
         Q.E[n] = newE;
     }
 }
