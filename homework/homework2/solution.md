@@ -48,7 +48,7 @@ where $c_s$ and $c_p$ denote the non-parallelizable and parallelizable portion r
     <img src="graph.png" alt="My Image" width="300">
 </div>
 
-We observe, if $x$ is large enough we almost $\log{\big(1+x\big)} \approx \log{x}$. So we can assume if $c^*$ is large enough :
+We observe, if $x$ is large enough we almost have $\log{\big(1+x\big)} \approx \log{x}$. So we can assume if $c^*$ is large enough :
 $$ \log{t} \approx  \log{c_p}-\log{c^*} - \log{p}+\log{c^*} \approx  \log{c_p} - \log{p}$$
 We can conclude that if the computational cost of the serial part of the problem is significantly smaller compared to the parallelizable part, we can almost expect the same scaling behavior. This can be achieved by optimizing the code to reduce the computational cost of the serial part or by increasing the problem size to increase the computational cost of the parallelizable part. Additionally, we can explore different parallel schemes that can further reduce the computational cost of the serial part.
 
