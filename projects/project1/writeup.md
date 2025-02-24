@@ -10,45 +10,41 @@ Y[j] += Y[j] + A[j][i] * B[i]
 ```
 
 Arithmetic Intensity:  
-$$
-\frac{f(n)}{n} = \frac{3}{(4 \times 8)} = \frac{3}{32}
-$$
+
+$$\frac{f(n)}{n} = \frac{3}{(4 \times 8)} = \frac{3}{32}$$
 
 ```
 s += A[i] * A[i]
 ```
 
 Arithmetic Intensity:  
-$$
-\frac{f(n)}{n} = \frac{2}{(1 \times 8)} = \frac{1}{4}
-$$
+
+$$\frac{f(n)}{n} = \frac{2}{(1 \times 8)} = \frac{1}{4}$$
 
 ```
 s += A[i] * B[i]
 ```
 
 Arithmetic Intensity:  
-$$
-\frac{f(n)}{n} = \frac{2}{(2 \times 8)} = \frac{1}{8}
-$$
+
+$$\frac{f(n)}{n} = \frac{2}{(2 \times 8)} = \frac{1}{8}$$
 
 ```
 Y[i] = A[i] + C * B[i]
 ```
 
 Arithmetic Intensity:  
-$$
-\frac{f(n)}{n} = \frac{2}{(3 \times 8)} = \frac{1}{12}
-$$
+
+$$\frac{f(n)}{n} = \frac{2}{(3 \times 8)} = \frac{1}{12}$$
 
 ### Table of Arithmetic Intensities
 
-| Kernel                          | Arithmetic Intensity (FLOPs/byte) |
-|---------------------------------|-----------------------------------|
-| `Y[j] += Y[j] + A[j][i] * B[i]` | $\frac{3}{32}$                    |
-| `s += A[i] * A[i]`              | $\frac{1}{4}$                     |
-| `s += A[i] * B[i]`              | $\frac{1}{8}$                     |
-| `Y[i] = A[i] + C * B[i]`        | $\frac{1}{12}$                    |
+ID | Kernel                          | Arithmetic Intensity (FLOPs/byte) |
+|---|---------------------------------|-----------------------------------|
+|K1| `Y[j] += Y[j] + A[j][i] * B[i]` | $\frac{3}{32}$                    |
+|K2| `s += A[i] * A[i]`              | $\frac{1}{4}$                     |
+|K3| `s += A[i] * B[i]`              | $\frac{1}{8}$                     |
+|K4| `Y[i] = A[i] + C * B[i]`        | $\frac{1}{12}$                    |
 
 ___________________________________________________
 
@@ -112,9 +108,9 @@ Following are the roofline plots for amd20, intel16 and intel18 machines. We rep
 ### Analysis
 
 
-The arithmetic intensity of the Sparse Matrix Vector operation (SpMV) is 0.25. It consists of a dot product of each row of $ M $ ($ m \times n $) with $ x $ ($ n \times 1 $), totaling $ 2mn $ operations. Accessing $ M $ ($ mn $ elements), $ x $ ($ mn $ elements due to multiple accesses per row), and writing $ y $ ($ m $ elements) results in approximately $ 8mn $ bytes of memory traffic, giving an intensity of $ \frac{2mn}{8mn} = \frac{1}{4} $ FLOPs/byte. Roofline models show that SpMV is memory/bandwidth bound across HPC's four machines, with intel16 and intel18 further constrained by L3-cache traffic.  
+The arithmetic intensity of the Sparse Matrix Vector operation (SpMV) is 0.25. It consists of a dot product of each row of $M$ ($m \times n$) with $x$ ($n \times 1$), totaling $2mn$ operations. Accessing $M$ ($mn$ elements), $x$ ($mn$ elements due to multiple accesses per row), and writing $y$ ($m$ elements) results in approximately $8mn$ bytes of memory traffic, giving an intensity of $\frac{2mn}{8mn} = \frac{1}{4}$ FLOPs/byte. Roofline models show that SpMV is memory/bandwidth bound across HPC's four machines, with intel16 and intel18 further constrained by L3-cache traffic.  
 
-The arithmetic intensity of the stencil operation is approximately 0.5 FLOPs/byte. Each grid point update involves 7 neighboring points, leading to 8 FLOPs (7 additions, 1 multiplication). In a 3D grid, limited cache capacity reduces data reuse, requiring each point to be reloaded, resulting in 9 memory accesses per update. With 8 FLOPs per update, the intensity is $ \frac{8}{16} = 0.5 $ FLOPs/byte. Roofline analysis indicates better performance than SpMV but still DRAM-bound.  
+The arithmetic intensity of the stencil operation is approximately 0.5 FLOPs/byte. Each grid point update involves 7 neighboring points, leading to 8 FLOPs (7 additions, 1 multiplication). In a 3D grid, limited cache capacity reduces data reuse, requiring each point to be reloaded, resulting in 9 memory accesses per update. With 8 FLOPs per update, the intensity is $\frac{8}{16} = 0.5$ FLOPs/byte. Roofline analysis indicates better performance than SpMV but still DRAM-bound.  
 
 The arithmetic intensity of the LBMHD kernel is about 1.07 FLOPs/byte. As a structured grid code with iterative time-stepping, it has significant memory traffic. Roofline models show it is compute-bound on amd20 and intel16-k80 but memory-bound on intel16 and intel18.  
 
@@ -199,7 +195,7 @@ For the Euler solver, which is a finite difference solver, we observe that the t
 
 ![alt text](gravitysolver.png)
 
-For the Gravity solver, we see that the trend initially decreases but eventually flattens out. This behavior occurs because the FFT algorithm has a time complexity of $O(N\log N)$, where N is the number of grid points. As the grid size increases, the FFT solver becomes more efficient relative to its input size, and the growth rate of the number of operations slows down. The flattening trend in the plot indicates that, for larger grid sizes, the solver's performance is more efficient, leading to fewer operations per zone update as the grid size grows. However, the scaling is not linear due to the logarithmic factor in the time complexity, which causes the decrease in zone updates per second.
+For the Gravity solver, we see that the trend initially decreases but eventually flattens out. This behavior occurs because the FFT algorithm has a time complexity of $O(N\log N)$, where $N$ is the number of grid points. As the grid size increases, the FFT solver becomes more efficient relative to its input size, and the growth rate of the number of operations slows down. The flattening trend in the plot indicates that, for larger grid sizes, the solver's performance is more efficient, leading to fewer operations per zone update as the grid size grows. However, the scaling is not linear due to the logarithmic factor in the time complexity, which causes the decrease in zone updates per second.
 
 
 Here is the AI vs Peak flop rate plotted on intel-18 roofline model.
