@@ -80,13 +80,22 @@ We are required to prove that ```𝐸 = 1``` implies that all processors are act
 
 ## Exercise 2.10
 
-Normally multiplyong matricies is a O(n^2) computation becasue each n represents the size of a matrix which needs ot be iterated through. using parallel addition to sum n numbers we now know the speed is O(log2(n)) woth O(n/2) processors. we need to use each o the n^2 element in the matrix which we can do becaue because the summations are being asssumed to the total numer of processors required. because instead of the sumation taking place between n and n one of them is O(log2N) because as seen in the cell under this we gather this information form the efficiency equation which is time parallel time * number of processor, which in this case is:
+Normally multiplying matrices is a O(n^2) computation because each n represents the size of a matrix which needs to be iterated through. Using parallel addition to sum n numbers we now know the speed is O(log2(n)) with O(n/2) processors. We need to use each of the n^2 element in the matrix which we can do because the summations are being assumed to the total number of processors required. because instead of the summation taking place between n and n, one of them is O(log2N) as seen in the cell under this we gather this information form the efficiency equation which is time parallel time * number of processors:
 
-    E = n^3 / (n^(3/2) * log2N ) 
+```Speed up is Sp =  (T1) / (Tp)``` <br>
+```So :  ```<br>
+```T1 = O(N^2)```<br>
+```Tp = O(log2(N))```<br>
+```P = O(N^2 / 2)```<br>
+```So :```<br>
+```Sp = O ( (n^2)  /  (log2(N)) )```<br>
+```And we know that Ep = Sp / p ```<br>
+```So:```<br>
+```O ( N^2 / log2(N) )  / O(N^3 / 2)```<br>
+```O(1 / log2(N)) ```<br>
 
-so the multiplication used in log2N and is usd to being the gather the exact efficiency equation. 
 
-This confirms that while speeding the parallel scheme becomes less efficient for the very large skall of N. and confirms the resulting efficiency of the calculation. 
+This confirms that scale of N increase the Ep decreases and efficiency goes down. 
 
 ## Exercise 2.11
 
@@ -108,32 +117,49 @@ where;
       ```T_1F_p/p``` is the  the part that can be parallelized
       
 
-Casse 1: For ```100``` processors
-From equation (2), we can write that; 
-      ```T_p = 1 + 1000 = 1001``` seconds 
+Case 1: For ```100``` processors
+Using equation (1), We know that we can write that; 
+      ```T_1 = 1 + 1000 = 1001 seconds``` 
+and
+      ```𝑇_1F_s= 1``` and this implies that;
+      ```F_s =1/T_1 =1/1001```
 But from equation (1), we can write that;
-      ```F_p = (1-F_s)```                    (3)
-Substituting ```T_P``` and equation (3) into equation (2) gives us;
-    ```1001 = T_1(F_s + (1-F_s)/100)```       (4)
-But we are told that the set up takes 1 second meaning that  ```𝑇_1F_s = 1.``` This implies that  ```𝑇_1 = 1/F_s.```
-Substituting for ```T_1``` in equation (4) gives us;
-    ```1001 =  1/F_s (F_s + (1-F_s)/100)```    (5)
-    ```1001F_s = (F_s + (1-F_s)/100)``` 
-    ```100100F_s = 100F_s + 1 - F_s```
-    ```100001F_s = 1```
-    ```F_s = 0.0000.9999```
-Therefore the speedup, ```S_p = T_1/p = (1/F_s)/p = 100001/100 = 1000.01```
-The Efficiency, ```E_p = S_p/p = 1000.01/100 = 10.0001```
+      ```F_p = (1-F_s)
+            = 1-1/1001
+            = 1000/1001
+            ```                    (3)
+Substituting for ```F_p``` into equation (2) gives us;
+    ```T_p = 1001(1/1001 + (1000/1001)/100)
+          = 1001(1/1001 + (1000/100100)
+          = 11``` 
+
+Therefore the speedup, ```S_p = T_1/T_p = 1001/11 = 91```
+The Efficiency, ```E_p = S_p/p = 91/100 = 0.91```
 
 Case 2: For ```500``` processors
-The speedup, ```S_p = T_1/p = 100001/500 = 200.002```
-The Efficiency, ```E_p = S_p/p = 200.02/500 = 0.400004```
+```T_p = 1001(1/1001 + (1000/1001)/500) = 3``` 
+The speedup, ```S_p = T_1/T_p = 1001/3 = 333.67```
+The Efficiency, ```E_p = S_p/p = (1001/3)/500 = 0.67```
 
 ## Exercise 2.12
 
-The impact of increasing the number of processors or P is that E(P) is defined by the ratio at which the number of processors speed up, becasue E(P) must remain constant. so this requires an increase in f or the parallilizable fraction of th code.
+The impact of increasing the number of processors or P is that E(P) is defined by the ratio at which the number of processors speed up, so to remain constant an increase in fp is required to maintian efficency.
 
-So for efficency to remain fixed the paralliziable portion of the code much reach 100% as P grows.
+```If```<br>
+```Tp = T1 ( fs + (fp / P) ```<br>
+```P = Processors ```<br>
+```Tp = time with P```<br>
+```T1 = time with one P```<br>
+```fs = fraction process```<br>
+```fp = parallel fraction of process```<br><br>
+
+```so if E = (T1 / PTp) ```<br>
+```then E = (T1) / (P T1(fs + ( fp / P)))```<br>
+```E = 1 / (P(fs + fp/P))```<br><br>
+
+```to maintain a fixed efficency E we need to adjust for fp as seen in:```<br>
+```fp = (1-EPfs) / E```<br>
+
 
 ## Exercise 2.17
 
