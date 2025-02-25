@@ -128,6 +128,7 @@ int main(int argc, char** argv) {
     }
 
     bool doEulerUpdate = params.getBool("do_euler_update");
+    bool doIO = params.getBool("do_io");
 
     // 2) Get Nx, Ny, Nz, domain, etc.
     int Nx = params.getInt("nx");
@@ -173,19 +174,27 @@ int main(int argc, char** argv) {
     double Lmax = std::max(
         {bbox.xmax - bbox.xmin, bbox.ymax - bbox.ymin, bbox.zmax - bbox.zmin});
     double crossingTime = Lmax / initMaxSpeed;
-    double totalTime = crossingTime * crossingCount;
+    double totalTime = params.getDouble("t_max");
 
     std::cout << "Initial max wave speed= " << initMaxSpeed
               << ", crossingTime= " << crossingTime
               << ", totalTime= " << totalTime << "\n";
 
-    agoge::io::writeFieldHDF5(Q, "agoge_init.h5");
+    if (doIO) {
+        // Write initial conditions to file
+        std::cout << "Writing initial conditions to HDF5 file.\n";
+        agoge::io::writeFieldHDF5(Q, "agoge_init.h5");
+    }
+
+    double dt_max = params.getDouble("dt_max");
 
     // Start main time loop, but in terms of totalTime
     agoge::PerformanceMonitor::instance().startTimer("timeLoop");
 
     double currentTime = 0.0;
     int step = 0;
+    double dt = params.getDouble("dt_init");
+    dt = std::min(dt, agoge::euler::computeTimeStep(Q, cflVal));
     while (currentTime < totalTime) {
         // If gravity is on, solve Poisson
         if (gravityEnabled) {
@@ -193,9 +202,6 @@ int main(int argc, char** argv) {
             agoge::gravity::solvePoisson(Q, method);
             agoge::PerformanceMonitor::instance().stopTimer("solvePoisson");
         }
-
-        // Compute dt from Euler solver & cfl
-        double dt = agoge::euler::computeTimeStep(Q, cflVal);
 
         // If dt is so tiny or zero => break
         if (dt < 1e-15) {
@@ -221,6 +227,8 @@ int main(int argc, char** argv) {
             std::cout << "Step=" << step << ", time=" << currentTime << "/"
                       << totalTime << ", dt=" << dt << "\n";
         }
+        // Compute dt from Euler solver & cfl for the next step
+        dt = std::min(1.2 * dt, agoge::euler::computeTimeStep(Q, cflVal));
     }
 
     agoge::PerformanceMonitor::instance().stopTimer("timeLoop");
@@ -233,10 +241,13 @@ int main(int argc, char** argv) {
     agoge::PerformanceMonitor::instance().setZones(totalZones);
 
     // Output
-    agoge::io::writeFieldHDF5(Q, "agoge_final.h5");
+    if (doIO) {
+        std::cout << "Writing final data to HDF5 file.\n";
+        agoge::io::writeFieldHDF5(Q, "agoge_final.h5");
+    }
+
     std::cout << "Simulation finished. Final time=" << currentTime
               << ", step count=" << step << "\n";
-    std::cout << "Final data written to agoge_final.h5\n";
 
     agoge::PerformanceMonitor::instance().stopTimer("main");
     agoge::PerformanceMonitor::instance().printReport();

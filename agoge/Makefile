@@ -1,10 +1,5 @@
 # Makefile for Agoge
-# Portable build system for Mac, Linux, Ubuntu, GitHub Codespaces, etc.
-# Designed to be simple and flexible for educational purposes.
-
-# ========================
-# 1. Compiler and Flags
-# ========================
+# Minimal excerpt focusing on compiler logic.
 
 # Allow overriding the compiler via environment variable, else default
 CXX := $(CXX)
@@ -12,30 +7,52 @@ ifeq ($(CXX),)
     CXX := g++
 endif
 
-# Detect Operating System
+# OS detection (unchanged from your snippet)
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
     OS := Mac
     CXX := clang++ # On Mac, prefer clang++
 else ifeq ($(UNAME_S),Linux)
     OS := Linux
-    # CXX remains as set above
 else
     OS := Unknown
-    # Keep default compiler
 endif
 
-# Prefer g++-10 if available
-ifeq ($(shell which g++-10),/usr/bin/g++-10)
-    CXX := g++-10
-endif
-
-# C++ Standard Flag (default to -std=c++20, allow override)
+# C++ Standard (default to -std=c++2a)
 CXX_STD ?= -std=c++2a
 
-# Compiler Flags
+# Base flags (common to all compilers)
 CXXFLAGS := $(CXX_STD) -O3 -Wall -Wextra -MMD -MP -g 
 
+# -------------------------------
+# Additional compiler-specific flags
+# -------------------------------
+ifeq ($(findstring icpc,$(CXX)),icpc)
+    # Intel Classic C++ (icpc)
+    CXXFLAGS += -xHost -shared-intel
+    $(info Using Intel icpc compiler, adding -xHost)
+else ifeq ($(findstring icpx,$(CXX)),icpx)
+    # Intel oneAPI DPC++/C++
+    CXXFLAGS += -xHost -shared-intel
+    $(info Using Intel icpx compiler, adding -xHost)
+else ifneq ($(findstring g++,$(CXX)),)  
+    # If 'g++' found in compiler name => assume GNU
+    CXXFLAGS += -march=native 
+    $(info Using GNU g++ compiler, adding -march=native)
+else
+    # e.g., clang++
+    $(info Using compiler: $(CXX) with generic flags)
+endif
+
+# HDF5 pkg-config logic, etc. (unchanged)...
+#  HDF5_CFLAGS = ...
+#  HDF5_LIBS = ...
+#  ...
+#  etc.
+
+# Normal build rules below...
+#  OBJ_FILES, $(TARGET), etc.
+#  ...
 # HDF5 Flags using pkg-config
 HDF5_CFLAGS := $(shell pkg-config --cflags hdf5_cpp 2>/dev/null)
 HDF5_LIBS := $(shell pkg-config --libs hdf5_cpp 2>/dev/null)
