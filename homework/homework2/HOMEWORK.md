@@ -251,7 +251,9 @@ In order to test the communication time with different distances of processors d
 
 ![Set 1](images/4_1.png "Set1 Pingpong time")
 
-A clear pattern of increasing and decreasing time can be seen with each change in the target process. A possible reason is that when communicating from process `0<->4` they are 4 cores apart, making for simpler messaging. However when communicating processes `0<->5` there is an odd number of cores apart, and therefore communication can be farther apart.
+A clear pattern of increasing and decreasing time can be seen with each change in the target process. Initially it might not seem correct why this is the case.
+
+One possible scenario is that MPI does not allocate processes in order – it gets a specified number of cores, using 2 as an example, and allocates several processes on these cores. When the two ping-pong processes are allocated on the same core, then the time is shorter, when they are alocatted on different cores, the communication time is longer. A possible "solution" would be to use MPI configuration to algin the processes on the cores in order, for example processes from 0-10 in core 1, and 11-20 in core 2.
 
 ## Exercise 4.2
 
