@@ -1,3 +1,12 @@
+/**
+ * @file GravitySolver.cpp
+ * @brief Implementation of gravity solvers for the Agoge application.
+ *
+ * This file implements methods for solving the Poisson equation using
+ * both naive DFT and the Cooley–Tukey FFT algorithm, along with necessary
+ * helper routines.
+ */
+
 #include "GravitySolver.hpp"
 #include "Config.hpp"
 #include "Field3d.hpp"
@@ -278,6 +287,15 @@ namespace agoge
             }
         }
 
+        /**
+         * @brief Solves the Poisson equation for gravitational potential.
+         *
+         * Depending on the chosen method, this function applies either a naive DFT
+         * or a Cooley-Tukey FFT approach to compute potential fluctuations.
+         *
+         * @param Q Field3D object containing density and ghost data.
+         * @param method The gravity solution method.
+         */
         void solvePoisson(Field3D &Q, GravityMethod method)
         {
             // 1) gather interior size

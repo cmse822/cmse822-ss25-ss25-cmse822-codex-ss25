@@ -1,6 +1,12 @@
-// problems/ProblemRegistry.cpp
-#include "ProblemRegistry.hpp"
+/**
+ * @file ProblemRegistry.cpp
+ * @brief Implementation of the problem registry for the Agoge application.
+ *
+ * This file implements the createProblem factory function that instantiates
+ * different types of problems based on a string identifier.
+ */
 
+#include "ProblemRegistry.hpp"
 #include "GaussianPulse.hpp"
 #include "GravityCollapse.hpp"
 #include "Problem.hpp"  // Include definitions of Problem and its derivatives
