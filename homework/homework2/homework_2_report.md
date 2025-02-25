@@ -143,9 +143,23 @@ The Efficiency, ```E_p = S_p/p = (1001/3)/500 = 0.67```
 
 ## Exercise 2.12
 
-The impact of increasing the number of processors or P is that E(P) is defined by the ratio at which the number of processors speed up, becasue E(P) must remain constant. so this requires an increase in f or the parallilizable fraction of th code.
+The impact of increasing the number of processors or P is that E(P) is defined by the ratio at which the number of processors speed up, so to remain constant an increase in fp is required to maintian efficency.
 
-So for efficency to remain fixed the paralliziable portion of the code much reach 100% as P grows.
+```If```<br>
+```Tp = T1 ( fs + (fp / P) ```<br>
+```P = Processors ```<br>
+```Tp = time with P```<br>
+```T1 = time with one P```<br>
+```fs = fraction process```<br>
+```fp = parallel fraction of process```<br><br>
+
+```so if E = (T1 / PTp) ```<br>
+```then E = (T1) / (P T1(fs + ( fp / P)))```<br>
+```E = 1 / (P(fs + fp/P))```<br><br>
+
+```to maintain a fixed efficency E we need to adjust for fp as seen in:```<br>
+```fp = (1-EPfs) / E```<br>
+
 
 ## Exercise 2.17
 
