@@ -259,36 +259,42 @@ int main(int argc, char** argv) {
         if (myI == 0) {
             // Hint: Set Q.rankMinusX to the rank of the process at the opposite end in the x-direction.
             // Q.rankMinusX = ...
+            Q.rankMinusX = Px - 1;
         }
     }
     if (params.getBoundaryCondition("bc_xmax") == agoge::config::BoundaryCondition::PERIODIC) {
         if (myI == Px - 1) {
             // Hint: Set Q.rankPlusX to the rank of the process at the opposite end in the x-direction.
             // Q.rankPlusX = ...
+            Q.rankPlusX = 0;
         }
     }
     if (params.getBoundaryCondition("bc_ymin") == agoge::config::BoundaryCondition::PERIODIC) {
         if (myJ == 0) {
             // Hint: Set Q.rankMinusY to the rank of the process at the opposite end in the y-direction.
             // Q.rankMinusY = ...
+            Q.rankMinusY = Py - 1;
         }
     }
     if (params.getBoundaryCondition("bc_ymax") == agoge::config::BoundaryCondition::PERIODIC) {
         if (myJ == Py - 1) {
             // Hint: Set Q.rankPlusY to the rank of the process at the opposite end in the y-direction.
             // Q.rankPlusY = ...
+            Q.rankPlusY = 0;
         }
     }
     if (params.getBoundaryCondition("bc_zmin") == agoge::config::BoundaryCondition::PERIODIC) {
         if (myK == 0) {
             // Hint: Set Q.rankMinusZ to the rank of the process at the opposite end in the z-direction.
             // Q.rankMinusZ = ...
+            Q.rankMinusZ = Pz - 1;
         }
     }
     if (params.getBoundaryCondition("bc_zmax") == agoge::config::BoundaryCondition::PERIODIC) {
         if (myK == Pz - 1) {
             // Hint: Set Q.rankPlusZ to the rank of the process at the opposite end in the z-direction.
             // Q.rankPlusZ = ...
+            Q.rankPlusZ = 0;
         }
     }
 
