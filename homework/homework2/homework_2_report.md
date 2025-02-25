@@ -80,13 +80,22 @@ We are required to prove that ```𝐸 = 1``` implies that all processors are act
 
 ## Exercise 2.10
 
-Normally multiplyong matricies is a O(n^2) computation becasue each n represents the size of a matrix which needs ot be iterated through. using parallel addition to sum n numbers we now know the speed is O(log2(n)) woth O(n/2) processors. we need to use each o the n^2 element in the matrix which we can do becaue because the summations are being asssumed to the total numer of processors required. because instead of the sumation taking place between n and n one of them is O(log2N) because as seen in the cell under this we gather this information form the efficiency equation which is time parallel time * number of processor, which in this case is:
+Normally multiplying matrices is a O(n^2) computation because each n represents the size of a matrix which needs to be iterated through. Using parallel addition to sum n numbers we now know the speed is O(log2(n)) with O(n/2) processors. We need to use each of the n^2 element in the matrix which we can do because the summations are being assumed to the total number of processors required. because instead of the summation taking place between n and n, one of them is O(log2N) as seen in the cell under this we gather this information form the efficiency equation which is time parallel time * number of processors:
 
-    E = n^3 / (n^(3/2) * log2N ) 
+```Speed up is Sp =  (T1) / (Tp)```
+```So :  ```
+```T1 = O(N^2)```
+```Tp = O(log2(N))```
+```P = O(N^2 / 2)```
+```So :```
+```Sp = O ( (n^2)  /  (log2(N)) )```
+```And we know that Ep = Sp / p ```
+```So:```
+```O ( N^2 / log2(N) )  / O(N^3 / 2)```
+```O(1 / log2(N)) ```
 
-so the multiplication used in log2N and is usd to being the gather the exact efficiency equation. 
 
-This confirms that while speeding the parallel scheme becomes less efficient for the very large skall of N. and confirms the resulting efficiency of the calculation. 
+This confirms that scale of N increase the Ep decreases and efficiency goes down. 
 
 ## Exercise 2.11
 
