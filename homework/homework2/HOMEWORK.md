@@ -283,6 +283,8 @@ For Set 1 it was observed an average time of `0.78175 microsec`.
 
 For Set 2 it was observed an average time of `0.41319 microsec`, consistently faster compared to Set 1.
 
+The exact reason for such difference in timing is hard to pinpoint. It could be a similar scenario to the one explained on 4.1, where even if the process number is farther apart, the physical processes are closer, and thus faster to each other, depending on how MPI allocates them.
+
 In both sets it can also be noticed that there are some peaks on pingpong time. A possible reason is that for that combination the processes are on different nodes, increasing the latency to send signals, while on other combinations they are in the same node, decreasing the latency.
 
 The detailed times for each source-target combination can be seen on the plots below:
