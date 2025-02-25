@@ -257,32 +257,38 @@ int main(int argc, char** argv) {
     // Set correct neighbor ranks for PERIODIC in each dimension:
     if (params.getBoundaryCondition("bc_xmin") == agoge::config::BoundaryCondition::PERIODIC) {
         if (myI == 0) {
-            Q.rankMinusX = myK * (Px * Py) + myJ * Px + (Px - 1);
+            // Hint: Set Q.rankMinusX to the rank of the process at the opposite end in the x-direction.
+            // Q.rankMinusX = ...
         }
     }
     if (params.getBoundaryCondition("bc_xmax") == agoge::config::BoundaryCondition::PERIODIC) {
         if (myI == Px - 1) {
-            Q.rankPlusX = myK * (Px * Py) + myJ * Px + 0;
+            // Hint: Set Q.rankPlusX to the rank of the process at the opposite end in the x-direction.
+            // Q.rankPlusX = ...
         }
     }
     if (params.getBoundaryCondition("bc_ymin") == agoge::config::BoundaryCondition::PERIODIC) {
         if (myJ == 0) {
-            Q.rankMinusY = myK * (Px * Py) + (Py - 1) * Px + myI;
+            // Hint: Set Q.rankMinusY to the rank of the process at the opposite end in the y-direction.
+            // Q.rankMinusY = ...
         }
     }
     if (params.getBoundaryCondition("bc_ymax") == agoge::config::BoundaryCondition::PERIODIC) {
         if (myJ == Py - 1) {
-            Q.rankPlusY = myK * (Px * Py) + 0 * Px + myI;
+            // Hint: Set Q.rankPlusY to the rank of the process at the opposite end in the y-direction.
+            // Q.rankPlusY = ...
         }
     }
     if (params.getBoundaryCondition("bc_zmin") == agoge::config::BoundaryCondition::PERIODIC) {
         if (myK == 0) {
-            Q.rankMinusZ = (Pz - 1) * (Px * Py) + myJ * Px + myI;
+            // Hint: Set Q.rankMinusZ to the rank of the process at the opposite end in the z-direction.
+            // Q.rankMinusZ = ...
         }
     }
     if (params.getBoundaryCondition("bc_zmax") == agoge::config::BoundaryCondition::PERIODIC) {
         if (myK == Pz - 1) {
-            Q.rankPlusZ = 0 * (Px * Py) + myJ * Px + myI;
+            // Hint: Set Q.rankPlusZ to the rank of the process at the opposite end in the z-direction.
+            // Q.rankPlusZ = ...
         }
     }
 

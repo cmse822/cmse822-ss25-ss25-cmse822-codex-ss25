@@ -70,53 +70,6 @@ static inline void copyCell(std::vector<double> &arr, int dst, int src) {
     arr[dst] = arr[src];
 }
 
-/// @brief Determine MPI tags for sending and receiving data between neighboring
-/// ranks.
-///
-/// This function helps to avoid tag collisions by assigning unique tags based
-/// on the ranks of the current process (myRank) and its neighbor
-/// (neighborRank). The base value is used to differentiate between different
-/// types of communications (e.g., x, y, z directions).
-///
-/// @param myRank The rank of the current process.
-/// @param neighborRank The rank of the neighboring process.
-/// @param base The base value for the tag to differentiate communication types.
-/// @return A pair of integers representing the send and receive tags.
-// inline std::pair<int, int> getTags(int myRank, int neighborRank, int base) {
-//     // ...obsolete code, remove...
-// }
-
-// Simple symmetric tag computation:
-//   base = direction_offset + phase_offset + (min(myRank,neighborRank)*10 +
-//   max(myRank,neighborRank))
-// where for example, for 'Z': direction_offset = 20000, phase0 -> phase_offset
-// = 0, phase1 -> phase_offset = 100. Then if (myRank < neighborRank) return
-// {base+1, base+2}; else return {base+2, base+1};
-inline std::pair<int, int> computeSymmetricTagPair(int myRank, int neighborRank,
-                                                   char direction, int phase) {
-    int directionOffset = 0;
-    if (direction == 'X') {
-        directionOffset = 0;
-    } else if (direction == 'Y') {
-        directionOffset = 10000;
-    } else if (direction == 'Z') {
-        directionOffset = 20000;
-    }
-    int phaseOffset = (phase == 0) ? 0 : 100;
-    int base =
-        directionOffset + phaseOffset +
-        (std::min(myRank, neighborRank) * 10 + std::max(myRank, neighborRank));
-    if (myRank < neighborRank) {
-        return {base + 1, base + 2};  // lower rank sends with (base+1), higher
-                                      // receives with (base+2)
-    } else if (myRank > neighborRank) {
-        return {base + 2, base + 1};  // higher rank sends with (base+2), lower
-                                      // receives with (base+1)
-    } else {
-        return {base + 1, base + 1};  // self-communication (unlikely)
-    }
-}
-
 void Field3D::applyBCs() {
     // Apply standard physical boundary conditions for each face.
     // (These remain intact for MPI sub-domains on global boundaries.)
@@ -259,183 +212,81 @@ void Field3D::applyBCs() {
     // The following applies if there is a valid MPI neighbor,
     // while for global boundaries (neighbor rank == -1) physical BCs remain.
 
-    // Remove old x-direction exchange; replace with ring-shift approach.
-
     // Helper lambdas for packing/unpacking x-direction data
     auto packX = [&](std::vector<double> &buf, bool sendPlus) {
-        int cnt = 0;
-        for (int k = 0; k < NzGhost; k++) {
-            for (int j = 0; j < NyGhost; j++) {
-                int iStart = sendPlus ? (NxGhost - 2 * nghost) : nghost;
-                int iEnd = sendPlus ? (NxGhost - nghost) : (2 * nghost);
-                for (int i = iStart; i < iEnd; i++) {
-                    buf[cnt++] = rho[index(i, j, k)];
-                    buf[cnt++] = rhou[index(i, j, k)];
-                    buf[cnt++] = rhov[index(i, j, k)];
-                    buf[cnt++] = rhow[index(i, j, k)];
-                    buf[cnt++] = E[index(i, j, k)];
-                    buf[cnt++] = phi[index(i, j, k)];
-                }
-            }
-        }
+        // Hint: Iterate over k and j indices.
+        // For each (k, j), determine iStart and iEnd based on sendPlus:
+        //   int iStart = sendPlus ? (NxGhost - 2 * nghost) : nghost;
+        //   int iEnd = sendPlus ? (NxGhost - nghost) : (2 * nghost);
+        // Then, sequentially pack rho, rhou, rhov, rhow, E, and phi into buf.
     };
     auto unpackX = [&](const std::vector<double> &buf, bool plusSide) {
-        int cnt = 0;
-        for (int k = 0; k < NzGhost; k++) {
-            for (int j = 0; j < NyGhost; j++) {
-                int iStart = plusSide ? (NxGhost - nghost) : 0;
-                int iEnd = plusSide ? NxGhost : nghost;
-                for (int i = iStart; i < iEnd; i++) {
-                    rho[index(i, j, k)] = buf[cnt++];
-                    rhou[index(i, j, k)] = buf[cnt++];
-                    rhov[index(i, j, k)] = buf[cnt++];
-                    rhow[index(i, j, k)] = buf[cnt++];
-                    E[index(i, j, k)] = buf[cnt++];
-                    phi[index(i, j, k)] = buf[cnt++];
-                }
-            }
-        }
+        // Hint: Iterate over k and j indices.
+        // For each (k, j), determine iStart and iEnd based on plusSide:
+        //   int iStart = plusSide ? (NxGhost - nghost) : 0;
+        //   int iEnd = plusSide ? NxGhost : nghost;
+        // Then, sequentially unpack the six field values from buf into the corresponding arrays.
     };
 
     // X-direction using MPI_Sendrecv with two buffers
     if (rankMinusX != MPI_PROC_NULL || rankPlusX != MPI_PROC_NULL) {
-        const int numArrays = 6;
-        int planeSize = NyGhost * NzGhost * nghost;
-        int totalCount = planeSize * numArrays;
-        std::vector<double> sendBuf(totalCount), recvBuf(totalCount);
-        int tag = 0;
-        // Phase 1: send plus-side data, receive from minus-side
-        packX(sendBuf, true);
-        MPI_Sendrecv(sendBuf.data(), totalCount, MPI_DOUBLE, rankPlusX, tag,
-                     recvBuf.data(), totalCount, MPI_DOUBLE, rankMinusX, tag,
-                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        unpackX(recvBuf, false);
-
-        // Phase 2: send minus-side data, receive from plus-side
-        packX(sendBuf, false);
-        MPI_Sendrecv(sendBuf.data(), totalCount, MPI_DOUBLE, rankMinusX, tag,
-                     recvBuf.data(), totalCount, MPI_DOUBLE, rankPlusX, tag,
-                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        unpackX(recvBuf, true);
+        // Hint: Compute totalCount = NyGhost * NzGhost * nghost * 6.
+        // Allocate send and receive buffers of that size.
+        // First, pack the plus-side data, send it to rankPlusX and receive from rankMinusX,
+        // then use unpackX with plusSide set to false.
+        // Next, pack the minus-side data, send it to rankMinusX and receive from rankPlusX,
+        // then call unpackX with plusSide set to true.
     }
 
     // --- Y-DIRECTION HALO EXCHANGE USING MPI_Sendrecv ---
     if (rankMinusY != MPI_PROC_NULL || rankPlusY != MPI_PROC_NULL) {
         // Define packY and unpackY lambdas for y-direction
         auto packY = [&](std::vector<double> &buf, bool sendPlus) {
-            int cnt = 0;
-            for (int k = 0; k < NzGhost; k++) {
-                for (int i = 0; i < NxGhost; i++) {
-                    int jStart = sendPlus ? (NyGhost - 2 * nghost) : nghost;
-                    int jEnd = sendPlus ? (NyGhost - nghost) : (2 * nghost);
-                    for (int j = jStart; j < jEnd; j++) {
-                        buf[cnt++] = rho[index(i, j, k)];
-                        buf[cnt++] = rhou[index(i, j, k)];
-                        buf[cnt++] = rhov[index(i, j, k)];
-                        buf[cnt++] = rhow[index(i, j, k)];
-                        buf[cnt++] = E[index(i, j, k)];
-                        buf[cnt++] = phi[index(i, j, k)];
-                    }
-                }
-            }
+            // Hint: Iterate over k and i indices.
+            // Determine jStart and jEnd based on sendPlus:
+            //   int jStart = sendPlus ? (NyGhost - 2 * nghost) : nghost;
+            //   int jEnd = sendPlus ? (NyGhost - nghost) : (2 * nghost);
+            // Pack rho, rhou, rhov, rhow, E, and phi, sequentially for each (k, i) over j range.
         };
         auto unpackY = [&](const std::vector<double> &buf, bool plusSide) {
-            int cnt = 0;
-            for (int k = 0; k < NzGhost; k++) {
-                for (int i = 0; i < NxGhost; i++) {
-                    int jStart = plusSide ? (NyGhost - nghost) : 0;
-                    int jEnd = plusSide ? NyGhost : nghost;
-                    for (int j = jStart; j < jEnd; j++) {
-                        rho[index(i, j, k)] = buf[cnt++];
-                        rhou[index(i, j, k)] = buf[cnt++];
-                        rhov[index(i, j, k)] = buf[cnt++];
-                        rhow[index(i, j, k)] = buf[cnt++];
-                        E[index(i, j, k)] = buf[cnt++];
-                        phi[index(i, j, k)] = buf[cnt++];
-                    }
-                }
-            }
+            // Hint: Iterate over k and i indices.
+            // Determine jStart and jEnd based on plusSide:
+            //   int jStart = plusSide ? (NyGhost - nghost) : 0;
+            //   int jEnd = plusSide ? NyGhost : nghost;
+            // Unpack the six field values from buf into the corresponding (k, i) cells.
         };
 
-        const int numArrays = 6;
-        int planeSize = NxGhost * NzGhost * nghost;
-        int totalCount = planeSize * numArrays;
-        std::vector<double> sendBuf(totalCount), recvBuf(totalCount);
-        int tag = 0;
-
-        // Phase 1: send plus-side data, receive minus-side
-        packY(sendBuf, true);
-        MPI_Sendrecv(sendBuf.data(), totalCount, MPI_DOUBLE, rankPlusY, tag,
-                     recvBuf.data(), totalCount, MPI_DOUBLE, rankMinusY, tag,
-                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        unpackY(recvBuf, false);
-
-        // Phase 2: send minus-side data, receive plus-side
-        packY(sendBuf, false);
-        MPI_Sendrecv(sendBuf.data(), totalCount, MPI_DOUBLE, rankMinusY, tag,
-                     recvBuf.data(), totalCount, MPI_DOUBLE, rankPlusY, tag,
-                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        unpackY(recvBuf, true);
+        // Hint: Compute totalCount = NxGhost * NzGhost * nghost * 6.
+        // Allocate send and receive buffers of that size.
+        // First, pack plus-side data, use MPI_Sendrecv to exchange with rankPlusY and rankMinusY,
+        // then call unpackY with plusSide set to false.
+        // Next, pack minus-side data, exchange accordingly, then call unpackY with plusSide set to true.
     }
 
     // --- Z-DIRECTION HALO EXCHANGE USING MPI_Irecv + MPI_Isend ---
     if (rankMinusZ != MPI_PROC_NULL || rankPlusZ != MPI_PROC_NULL) {
         // Define packZ and unpackZ lambdas for z-direction
         auto packZ = [&](std::vector<double> &buf, bool sendPlus) {
-            int cnt = 0;
-            for (int j = 0; j < NyGhost; j++) {
-                for (int i = 0; i < NxGhost; i++) {
-                    int kStart = sendPlus ? (NzGhost - 2 * nghost) : nghost;
-                    int kEnd = sendPlus ? (NzGhost - nghost) : (2 * nghost);
-                    for (int k = kStart; k < kEnd; k++) {
-                        buf[cnt++] = rho[index(i, j, k)];
-                        buf[cnt++] = rhou[index(i, j, k)];
-                        buf[cnt++] = rhov[index(i, j, k)];
-                        buf[cnt++] = rhow[index(i, j, k)];
-                        buf[cnt++] = E[index(i, j, k)];
-                        buf[cnt++] = phi[index(i, j, k)];
-                    }
-                }
-            }
+            // Hint: Iterate over i and j indices.
+            // Determine kStart and kEnd based on sendPlus:
+            //   int kStart = sendPlus ? (NzGhost - 2 * nghost) : nghost;
+            //   int kEnd = sendPlus ? (NzGhost - nghost) : (2 * nghost);
+            // Pack sequentially the six field values (rho, rhou, rhov, rhow, E, phi) for each (i, j).
         };
         auto unpackZ = [&](const std::vector<double> &buf, bool plusSide) {
-            int cnt = 0;
-            for (int j = 0; j < NyGhost; j++) {
-                for (int i = 0; i < NxGhost; i++) {
-                    int kStart = plusSide ? (NzGhost - nghost) : 0;
-                    int kEnd = plusSide ? NzGhost : nghost;
-                    for (int k = kStart; k < kEnd; k++) {
-                        rho[index(i, j, k)] = buf[cnt++];
-                        rhou[index(i, j, k)] = buf[cnt++];
-                        rhov[index(i, j, k)] = buf[cnt++];
-                        rhow[index(i, j, k)] = buf[cnt++];
-                        E[index(i, j, k)] = buf[cnt++];
-                        phi[index(i, j, k)] = buf[cnt++];
-                    }
-                }
-            }
+            // Hint: Iterate over i and j indices.
+            // Determine kStart and kEnd based on plusSide:
+            //   int kStart = plusSide ? (NzGhost - nghost) : 0;
+            //   int kEnd = plusSide ? NzGhost : nghost;
+            // Unpack the six field values from buf into the appropriate (i, j) cells.
         };
 
-        const int numArrays = 6;
-        int planeSize = NxGhost * NyGhost * nghost;
-        int totalCount = planeSize * numArrays;
-
-        std::vector<double> sendBuf(totalCount), recvBuf(totalCount);
-
-        // Phase 1: send to plus-side, receive from minus-side
-        packZ(sendBuf, true);
-        int tag = 0;
-        MPI_Sendrecv(sendBuf.data(), totalCount, MPI_DOUBLE, rankPlusZ, tag,
-                     recvBuf.data(), totalCount, MPI_DOUBLE, rankMinusZ, tag,
-                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        unpackZ(recvBuf, false);
-
-        // Phase 2: send minus-side data, receive plus-side data
-        packZ(sendBuf, false);
-        MPI_Sendrecv(sendBuf.data(), totalCount, MPI_DOUBLE, rankMinusZ, tag,
-                     recvBuf.data(), totalCount, MPI_DOUBLE, rankPlusZ, tag,
-                     MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        unpackZ(recvBuf, true);
+        // Hint: Compute totalCount = NxGhost * NyGhost * nghost * 6.
+        // Allocate send and receive buffers of that size.
+        // First, pack plus-side data, perform MPI_Sendrecv sending to rankPlusZ and receiving from rankMinusZ,
+        // then call unpackZ with plusSide set to false.
+        // Next, pack minus-side data, exchange with rankMinusZ and rankPlusZ using MPI_Sendrecv,
+        // then call unpackZ with plusSide set to true.
     }
 }
 
