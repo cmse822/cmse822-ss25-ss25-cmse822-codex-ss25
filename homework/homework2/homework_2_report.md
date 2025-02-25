@@ -82,7 +82,7 @@ We are required to prove that ```𝐸 = 1``` implies that all processors are act
 
 Normally multiplying matrices is a O(n^2) computation because each n represents the size of a matrix which needs to be iterated through. Using parallel addition to sum n numbers we now know the speed is O(log2(n)) with O(n/2) processors. We need to use each of the n^2 element in the matrix which we can do because the summations are being assumed to the total number of processors required. because instead of the summation taking place between n and n, one of them is O(log2N) as seen in the cell under this we gather this information form the efficiency equation which is time parallel time * number of processors:
 
-```Speed up is Sp =  (T1) / (Tp)```
+```Speed up is Sp =  (T1) / (Tp)/n```
 ```So :  ```
 ```T1 = O(N^2)```
 ```Tp = O(log2(N))```
