@@ -86,6 +86,7 @@ agoge/build/*
 
 # HDF5 output
 *.h5
+*.out
 
 # binary
 agoge_run

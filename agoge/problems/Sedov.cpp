@@ -20,17 +20,17 @@ void Sedov::initialize(Field3D &Q, const ParameterSystem &params) {
     double radius = params.getDouble(prefix + "radius");
     double energy = params.getDouble(prefix + "energy");
     double edens = energy / (4. / 3. * M_PI * radius * radius * radius);
-    // Compute domain center from the bounding box.
-    double xMid = (Q.bbox.xmax - Q.bbox.xmin) / 2.0;
-    double yMid = (Q.bbox.ymax - Q.bbox.ymin) / 2.0;
-    double zMid = (Q.bbox.zmax - Q.bbox.zmin) / 2.0;
+    // Compute global domain center from Q.global_bbox
+    double xMid = (Q.global_bbox.xmin + Q.global_bbox.xmax) / 2.0;
+    double yMid = (Q.global_bbox.ymin + Q.global_bbox.ymax) / 2.0;
+    double zMid = (Q.global_bbox.zmin + Q.global_bbox.zmax) / 2.0;
 
     for (int k = 0; k < Q.Nz; ++k) {
         for (int j = 0; j < Q.Ny; ++j) {
             for (int i = 0; i < Q.Nx; ++i) {
                 int idx = Q.interiorIndex(i, j, k);
 
-                // Compute cell center coordinates (relative to domain center).
+                // Compute cell center coordinates (relative to global domain center)
                 double xC = Q.xCenter(i) - xMid;
                 double yC = Q.yCenter(j) - yMid;
                 double zC = Q.zCenter(k) - zMid;

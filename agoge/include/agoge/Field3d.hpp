@@ -29,6 +29,72 @@ class Field3D {
     // Updated constructor with BoundingBox and default ghost value
     Field3D(int nx, int ny, int nz, const BoundingBox &bbox, int nghost = 0);
 
+    // Explicit copy constructor with reordered initializer list:
+    Field3D(const Field3D& other)
+        : Nx(other.Nx), Ny(other.Ny), Nz(other.Nz),
+          NxGhost(other.NxGhost), NyGhost(other.NyGhost), NzGhost(other.NzGhost),
+          nghost(other.nghost),
+          dx(other.dx), dy(other.dy), dz(other.dz),
+          bbox(other.bbox),
+          global_bbox(other.global_bbox), global_Nx(other.global_Nx), global_Ny(other.global_Ny), global_Nz(other.global_Nz),
+          Px(other.Px), Py(other.Py), Pz(other.Pz),
+          myRank(other.myRank), subdomain_x(other.subdomain_x), subdomain_y(other.subdomain_y), subdomain_z(other.subdomain_z),
+          rho(other.rho), rhou(other.rhou), rhov(other.rhov), rhow(other.rhow), E(other.E), phi(other.phi),
+          bc_xmin(other.bc_xmin), bc_xmax(other.bc_xmax),
+          bc_ymin(other.bc_ymin), bc_ymax(other.bc_ymax),
+          bc_zmin(other.bc_zmin), bc_zmax(other.bc_zmax),
+          rankMinusX(other.rankMinusX), rankPlusX(other.rankPlusX),
+          rankMinusY(other.rankMinusY), rankPlusY(other.rankPlusY),
+          rankMinusZ(other.rankMinusZ), rankPlusZ(other.rankPlusZ)
+    {}
+
+    // Explicit assignment operator
+    Field3D& operator=(const Field3D& other) {
+        if (this != &other) {
+            Nx = other.Nx;
+            Ny = other.Ny;
+            Nz = other.Nz;
+            NxGhost = other.NxGhost;
+            NyGhost = other.NyGhost;
+            NzGhost = other.NzGhost;
+            nghost = other.nghost;
+            dx = other.dx;
+            dy = other.dy;
+            dz = other.dz;
+            bbox = other.bbox;
+            rho = other.rho;
+            rhou = other.rhou;
+            rhov = other.rhov;
+            rhow = other.rhow;
+            E = other.E;
+            phi = other.phi;
+            bc_xmin = other.bc_xmin;
+            bc_xmax = other.bc_xmax;
+            bc_ymin = other.bc_ymin;
+            bc_ymax = other.bc_ymax;
+            bc_zmin = other.bc_zmin;
+            bc_zmax = other.bc_zmax;
+            rankMinusX = other.rankMinusX;
+            rankPlusX = other.rankPlusX;
+            rankMinusY = other.rankMinusY;
+            rankPlusY = other.rankPlusY;
+            rankMinusZ = other.rankMinusZ;
+            rankPlusZ = other.rankPlusZ;
+            global_bbox = other.global_bbox;
+            global_Nx = other.global_Nx;
+            global_Ny = other.global_Ny;
+            global_Nz = other.global_Nz;
+            Px = other.Px;
+            Py = other.Py;
+            Pz = other.Pz;
+            myRank = other.myRank;
+            subdomain_x = other.subdomain_x;
+            subdomain_y = other.subdomain_y;
+            subdomain_z = other.subdomain_z;
+        }
+        return *this;
+    }
+
     // Accessor for BoundingBox
     const BoundingBox& getBoundingBox() const { return bbox; }
 
@@ -56,6 +122,20 @@ class Field3D {
      * @brief The bounding box for the field
      */
     BoundingBox bbox;
+
+    // New metadata for global domain reconstruction:
+    // Global bounding box for the entire domain
+    BoundingBox global_bbox;
+    // Global interior grid dimensions
+    int global_Nx, global_Ny, global_Nz;
+    // Total subdomains in each direction
+    int Px, Py, Pz;
+    // rank id 
+    int myRank;
+    // Comm world size
+    int mpiSize;
+    // This rank's subdomain indices
+    int subdomain_x, subdomain_y, subdomain_z;
 
     /**
      * @brief The arrays: size NxGhost*NyGhost*NzGhost
@@ -128,6 +208,11 @@ class Field3D {
     double zCenter(int kIn) const;
     double zLeftEdge(int kIn) const;
     double zRightEdge(int kIn) const;
+
+    // MPI neighbor ranks
+    int rankMinusX, rankPlusX;
+    int rankMinusY, rankPlusY;
+    int rankMinusZ, rankPlusZ;
 };
 
 }  // namespace agoge

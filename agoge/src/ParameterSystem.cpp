@@ -7,12 +7,19 @@
 
 namespace agoge {
 
-ParameterSystem::ParameterSystem() { setDefaults(); }
+// Constructor initializes the internal defaults.
+ParameterSystem::ParameterSystem() {
+    // Calls helper to populate defaults map with typical simulation parameters.
+    setDefaults();
+}
 
+// Sets baseline simulation parameters for domain sizes, CFL, boundary conditions, etc.
 void ParameterSystem::setDefaults() {
     defaults_["nx"] = "64";
     defaults_["ny"] = "64";
     defaults_["nz"] = "64";
+
+    defaults_["nghost"] = "1";
 
     defaults_["cfl"] = "0.5";
     defaults_["use_gravity"] = "false";
@@ -42,13 +49,21 @@ void ParameterSystem::setDefaults() {
     
     // Turn off IO         
     defaults_["do_io"] = "true";
+
+    // new default for wall clock time: 14400 seconds = 4 hours
+    defaults_["max_wallclock_time"] = "14400";
+
+    // number of steps between screen output
+    defaults_["screen_out_interval"] = "2";
 }
 
+// Adds or overrides a default parameter with a given key-value pair.
 void ParameterSystem::addDefault(const std::string &key,
                                  const std::string &value) {
     defaults_[key] = value;
 }
 
+// Attempts to parse a YAML file; logs an error if parsing fails.
 bool ParameterSystem::readYAML(const std::string &filename) {
     bool ok = parser_.parseFile(filename);
     if (!ok) {
@@ -58,6 +73,7 @@ bool ParameterSystem::readYAML(const std::string &filename) {
     return ok;
 }
 
+// Returns the parameter value as a raw string; checks both parsed YAML and defaults.
 std::string ParameterSystem::getRaw(const std::string &key) const {
     if (parser_.hasKey(key)) {
         return parser_.getString(key);
@@ -69,6 +85,7 @@ std::string ParameterSystem::getRaw(const std::string &key) const {
     return "";
 }
 
+// Converts the parameter string to an integer, with fallback behavior if missing.
 int ParameterSystem::getInt(const std::string &key) const {
     std::string raw = getRaw(key);
     if (raw.empty()) {
@@ -77,6 +94,7 @@ int ParameterSystem::getInt(const std::string &key) const {
     return std::stoi(raw);
 }
 
+// Converts the parameter string to a double, returning 0.0 if missing.
 double ParameterSystem::getDouble(const std::string &key) const {
     std::string raw = getRaw(key);
     if (raw.empty()) {
@@ -85,6 +103,7 @@ double ParameterSystem::getDouble(const std::string &key) const {
     return std::stod(raw);
 }
 
+// Interprets the parameter string as a boolean, accepting various true/false forms.
 bool ParameterSystem::getBool(const std::string &key) const {
     std::string raw = getRaw(key);
     if (raw.empty()) {
@@ -100,6 +119,7 @@ bool ParameterSystem::getBool(const std::string &key) const {
     return false;
 }
 
+// Strips surrounding quotes if present.
 std::string ParameterSystem::getString(const std::string &key) const {
     std::string raw = getRaw(key);
     if (!raw.empty() && raw.front() == '"' && raw.back() == '"' &&
@@ -109,6 +129,7 @@ std::string ParameterSystem::getString(const std::string &key) const {
     return raw;
 }
 
+// Parses a comma-separated list into a vector of doubles, ignoring parsing errors.
 std::vector<double> ParameterSystem::getDoubleList(
     const std::string &key) const {
     std::vector<double> result;
@@ -128,6 +149,7 @@ std::vector<double> ParameterSystem::getDoubleList(
     return result;
 }
 
+// Translates a boundary condition string (e.g., "periodic", "outflow") into an enum type.
 config::BoundaryCondition ParameterSystem::getBoundaryCondition(
     const std::string &key) const {
     // e.g. param might be "bc_xmin" -> "outflow"
@@ -144,6 +166,7 @@ config::BoundaryCondition ParameterSystem::getBoundaryCondition(
     return config::BoundaryCondition::PERIODIC;
 }
 
+// Helper to remove brackets from a list-string and split the values by commas.
 std::vector<std::string> ParameterSystem::parseList(
     const std::string &raw) const {
     std::vector<std::string> tokens;
@@ -162,6 +185,7 @@ std::vector<std::string> ParameterSystem::parseList(
     return tokens;
 }
 
+// Trims leading and trailing whitespace from a string.
 std::string ParameterSystem::trim(const std::string &str) const {
     if (str.empty()) return str;
     size_t start = 0;
