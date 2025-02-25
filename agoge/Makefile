@@ -2,7 +2,7 @@
 # Minimal excerpt focusing on compiler logic.
 
 # Allow overriding the compiler via environment variable, else default
-CXX := $(CXX)
+CXX := mpic++
 ifeq ($(CXX),)
     CXX := g++
 endif
@@ -11,7 +11,7 @@ endif
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
     OS := Mac
-    CXX := clang++ # On Mac, prefer clang++
+    CXX := mpic++ # On Mac, prefer clang++
 else ifeq ($(UNAME_S),Linux)
     OS := Linux
 else
