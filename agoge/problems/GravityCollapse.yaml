@@ -11,7 +11,7 @@ ny: 64
 nz: 64                                         
 # cfl, sound_crossings, etc. 
 cfl: 0.25
-t_max: 2000.0
+t_max: 100.0
 dt_init: 0.1
 use_gravity: true
 do_euler_update: true

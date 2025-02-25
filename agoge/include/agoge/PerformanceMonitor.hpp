@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mpi.h>
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -34,7 +35,7 @@ struct TimerData {
  *   At program end:
  *   PerformanceMonitor::instance().setSteps(steps);
  *   PerformanceMonitor::instance().setZones(zones);
- *   PerformanceMonitor::instance().printReport();
+ *   PerformanceMonitor::instance().compileReport();
  */
 class PerformanceMonitor {
    public:
@@ -95,72 +96,97 @@ class PerformanceMonitor {
     void setZones(long zones) { zones_ = zones; }
 
     /**
-     * @brief Print a summary of all timers to stdout.
+     * @brief Set the processor rank.
      *
-     * Shows total time in seconds, number of calls, average time in ms,
-     * and zone updates per second.
+     * @param rank Processor rank.
      */
-    void printReport() const {
-        // Define column widths
-        const int nameWidth = 20;  // Adjust as needed
-        const int timeWidth = 18;
-        const int callsWidth = 10;
-        const int avgWidth = 13;
-        const int zupsWidth = 16;  // Zone Updates per Second
+    void setRank(int rank) { rank_ = rank; }
 
-        std::cout
-            << "\n================= PERFORMANCE REPORT =================\n";
+    /**
+     * @brief Set the total number of ranks.
+     *
+     * @param size Total number of ranks.
+     */
+    void setCommSize(int size) { size_ = size; }
 
-        // Set formatting for headers
-        std::cout << std::left << std::setw(nameWidth) << "Timer Name"
-                  << std::right << std::setw(timeWidth) << "Total Time (s)"
-                  << std::right << std::setw(callsWidth) << "Calls"
-                  << std::right << std::setw(avgWidth) << "Avg (ms)"
-                  << std::right << std::setw(zupsWidth) << "Mega Zone Updates/s"
-                  << "\n";
-
-        std::cout << "---------------------------------------------------------"
-                     "-----------------\n";
-
-        // Set formatting for data rows
+    /**
+     * @brief Compile and print a summary of all timers.
+     *
+     * All MPI collectives within this method are called by every rank.
+     * However, the detailed report is printed only by rank 0.
+     */
+    void compileReport() const {
+        // Gather local timer names and data. All ranks participate.
+        std::vector<std::string> timerNames;
         for (const auto &pair : timers_) {
-            const auto &name = pair.first;
-            const auto &data = pair.second;
-
-            double totalSec = std::chrono::duration<double>(data.total).count();
-            double avgMs = 0.0;
-            double MzoneUpdatesPerSec = 0.0;
-
-            if (data.callCount > 0) {
-                avgMs = (totalSec * 1000.0) / data.callCount;
-            }
-
-            if (totalSec > 0.0) {
-                MzoneUpdatesPerSec = (static_cast<double>(steps_) *
-                                     static_cast<double>(zones_)) /
-                                    totalSec / 1e6;
-            } else {
-                MzoneUpdatesPerSec = 0.0;
-            }
-
-            std::cout << std::left << std::setw(nameWidth) << name << std::right
-                      << std::setw(timeWidth) << std::fixed
-                      << std::setprecision(6) << totalSec << std::right
-                      << std::setw(callsWidth) << data.callCount << std::right
-                      << std::setw(avgWidth) << std::fixed
-                      << std::setprecision(6) << avgMs << std::right
-                      << std::setw(zupsWidth) << std::fixed
-                      << std::setprecision(2) << MzoneUpdatesPerSec << "\n";
+            timerNames.push_back(pair.first);
+        }
+        int count = timerNames.size();
+        std::vector<double> localTotals(count);
+        std::vector<double> localCalls(count);
+        int idx = 0;
+        for (const auto &pair : timers_) {
+            localTotals[idx] = std::chrono::duration<double>(pair.second.total).count();
+            localCalls[idx] = static_cast<double>(pair.second.callCount);
+            idx++;
         }
 
-        std::cout << "---------------------------------------------------------"
-                     "-----------------\n\n";
+        std::vector<double> minTotals(count);
+        std::vector<double> maxTotals(count);
+        std::vector<double> sumTotals(count);
+
+        MPI_Allreduce(localTotals.data(), minTotals.data(), count, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+        MPI_Allreduce(localTotals.data(), maxTotals.data(), count, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+        MPI_Allreduce(localTotals.data(), sumTotals.data(), count, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+        if (rank_ == 0) {
+            printAggregatedReport(timerNames, minTotals, maxTotals, sumTotals, localCalls);
+        }
     }
 
    private:
     PerformanceMonitor() = default;  // Private constructor for singleton
     PerformanceMonitor(const PerformanceMonitor &) = delete;
     PerformanceMonitor &operator=(const PerformanceMonitor &) = delete;
+
+    // Aggregated report with min, max, and average across all ranks
+    void printAggregatedReport(const std::vector<std::string>& timerNames,
+                               const std::vector<double>& minTotals,
+                               const std::vector<double>& maxTotals,
+                               const std::vector<double>& sumTotals,
+                               const std::vector<double>& localCalls) const {
+        const int headerWidth = 70;
+        const int nameWidth  = 24;
+        const int colWidth   = 12;
+        std::cout << "\n====== AGGREGATED TIMINGS ACROSS ALL RANKS ======\n\n";
+        std::cout << std::left << std::setw(nameWidth) << "Timer"
+                  << std::right << std::setw(colWidth) << "Min(s)"
+                  << std::right << std::setw(colWidth) << "Max(s)"
+                  << std::right << std::setw(colWidth) << "Avg(s)"
+                  << std::right << std::setw(colWidth) << "Calls"
+                  << "\n";
+        std::cout << std::string(headerWidth, '-') << "\n";
+
+        int size = 0;
+        MPI_Comm_size(MPI_COMM_WORLD, &size);
+        double zoneUpdates = 0.0;
+        for (size_t i = 0; i < timerNames.size(); i++) {
+            double avgTotal = sumTotals[i] / static_cast<double>(size);
+            if (timerNames[i] == "timeLoop") {
+                zoneUpdates = (maxTotals[i] > 0.0)
+                                  ? (static_cast<double>(steps_) * zones_ / maxTotals[i] / 1e6)
+                                  : 0.0;
+            }
+            std::cout << std::left << std::setw(nameWidth) << timerNames[i]
+                      << std::right << std::setw(colWidth) << std::fixed << std::setprecision(6) << minTotals[i]
+                      << std::right << std::setw(colWidth) << maxTotals[i]
+                      << std::right << std::setw(colWidth) << avgTotal
+                      << std::right << std::setw(colWidth) << (long)(localCalls[i])
+                      << "\n";
+        }
+        std::cout << std::string(headerWidth, '-') << "\n\n";
+        std::cout << "Zone Updates per Second (M): " << std::fixed << std::setprecision(2) << zoneUpdates << "\n\n";
+    }
 
     // Map from timer name -> accumulated data
     std::unordered_map<std::string, TimerData> timers_;
@@ -172,6 +198,8 @@ class PerformanceMonitor {
     // Simulation parameters for zone updates
     long steps_ = 0;
     long zones_ = 0;
+    int rank_ = 0;  // New member to store the processor rank
+    int size_ = 1;  // store total number of ranks
 };
 
 }  // namespace agoge

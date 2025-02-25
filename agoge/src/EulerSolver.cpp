@@ -1,3 +1,11 @@
+/**
+ * @file EulerSolver.cpp
+ * @brief Implementation of Euler solver routines for the Agoge application.
+ *
+ * This file contains functions to compute numerical fluxes, update solution
+ * using RK2 time stepping, and compute the time step.
+ */
+
 #include "EulerSolver.hpp"
 
 #include <algorithm>
@@ -58,12 +66,6 @@ static inline std::array<double, 5> fluxZ(double r, double ru, double rv,
     return {rw, rw * (ru / r), rw * (rv / r), rw * w + p, (E + p) * w};
 }
 
-static inline double minmod(double a, double b) {
-    if (a * b <= 0.0) return 0.0;
-    double absa = std::fabs(a), absb = std::fabs(b);
-    return (a > 0.0) ? std::min(absa, absb) : -std::min(absa, absb);
-}
-
 /**
  * @brief computeGravityAccel from ghosted field. We'll do central difference.
  */
@@ -92,9 +94,36 @@ static inline void computeGravityAccel(const Field3D &Q, int iG, int jG, int kG,
     gz = -(phiF - phiB) / (2. * dz);
 }
 
+// Move computeFaceFlux here at namespace scope:
+inline std::array<double, 5> computeFaceFlux(
+    const std::array<double, 5>& UL,
+    const std::array<double, 5>& UR,
+    auto&& fluxFunc) {
+    double aL = waveSpeed(UL[0], UL[1], UL[2], UL[3], UL[4]);
+    double aR = waveSpeed(UR[0], UL[1], UL[2], UL[3], UL[4]);
+    double alpha = std::max(aL, aR);
+
+    auto fL = fluxFunc(UL[0], UL[1], UL[2], UL[3], UL[4]);
+    auto fR = fluxFunc(UR[0], UR[1], UR[2], UR[3], UR[4]);
+
+    std::array<double, 5> faceFlux;
+    for (int n = 0; n < 5; n++) {
+        faceFlux[n] = 0.5 * (fL[n] + fR[n]) - 0.5 * alpha * (UR[n] - UL[n]);
+    }
+    return faceFlux;
+}
+
 //=====================================================
 // computeL: 2D or 3D split approach with ghost cells
 //=====================================================
+
+/**
+ * @brief Compute the residual fluxes over the domain.
+ *
+ * @param Q The current field.
+ * @param LQ The computed residual flux.
+ * @param gravField Optional pointer to a gravity field.
+ */
 void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
     agoge::PerformanceMonitor::instance().startTimer("computeL");
 
@@ -145,9 +174,10 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
     for (int k = 0; k < nz; k++) {
         for (int j = 0; j < ny; j++) {
             for (int i = 0; i <= nx; i++) {
-                // left cell is iF-1, right cell is iF, in interior coords
-                // if iF=0 => left cell is iF-1= -1 => that's in ghost region
-                // but Q has ghost cells => so let iL= iF-1.
+                // left cell is iF-1, right cell is iF, in interior
+                // coords if iF=0 => left cell is iF-1= -1 => that's
+                // in ghost region but Q has ghost cells => so let
+                // iL= iF-1.
 
                 int cL = Q.interiorIndex(i - 1, j, k);
                 int cR = Q.interiorIndex(i, j, k);
@@ -156,23 +186,11 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
                 auto UL = getU(cL);
                 auto UR = getU(cR);
 
-                // we can do minmod slope from neighbors cL-1, cL+1, etc., or do
-                // simpler approach for brevity, let's do 1st-order
+                // we can do minmod slope from neighbors cL-1, cL+1,
+                // etc., or do simpler approach for brevity, let's
+                // do 1st-order
 
-                double aL = waveSpeed(UL[0], UL[1], UL[2], UL[3], UL[4]);
-                double aR = waveSpeed(UR[0], UR[1], UR[2], UR[3], UR[4]);
-                double alpha = std::max(aL, aR);
-
-                auto fL = fluxX(UL[0], UL[1], UL[2], UL[3], UL[4]);
-                auto fR = fluxX(UR[0], UR[1], UR[2], UR[3], UR[4]);
-
-                std::array<double, 5> faceFlux;
-                for (int n = 0; n < 5; n++) {
-                    faceFlux[n] =
-                        0.5 * (fL[n] + fR[n]) - 0.5 * alpha * (UR[n] - UL[n]);
-                }
-
-                Fx[fxIndex(i, j, k)] = faceFlux;
+                Fx[fxIndex(i, j, k)] = computeFaceFlux(UL, UR, fluxX);
             }
         }
     }
@@ -197,8 +215,9 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
 
     //===========================
     // Step2: Y-sweep
-    // similarly define (nxGhost * (ny+1)* nzGhost) flux array or just (nx *
-    // (ny+1)* nz) if only interior for brevity, I show a direct approach...
+    // similarly define (nxGhost * (ny+1)* nzGhost) flux array or
+    // just (nx * (ny+1)* nz) if only interior for brevity, I show a
+    // direct approach...
     // ...
     //===========================
     std::vector<std::array<double, 5>> Fy((ny + 1) * nx * nz);
@@ -215,8 +234,9 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
             for (int j = 0; j <= ny; j++) {
                 // left cell is jF-1, right cell
                 // is jF, in interior coords
-                // if jF=0 => left cell is jF-1= -1 => that's in ghost
-                // region but Q has ghost cells => so let jL= jF-1.
+                // if jF=0 => left cell is jF-1= -1 => that's in
+                // ghost region but Q has ghost cells => so let jL=
+                // jF-1.
 
                 int cL = Q.interiorIndex(i, j - 1, k);
                 int cR = Q.interiorIndex(i, j, k);
@@ -225,8 +245,9 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
                 auto UL = getU(cL);
                 auto UR = getU(cR);
 
-                // we can do minmod slope from neighbors cL-1, cL+1, etc.,
-                // or do simpler approach for brevity, let's do 1st-order
+                // we can do minmod slope from neighbors cL-1, cL+1,
+                // etc., or do simpler approach for brevity, let's
+                // do 1st-order
 
                 double aL = waveSpeed(UL[0], UL[1], UL[2], UL[3], UL[4]);
                 double aR = waveSpeed(UR[0], UR[1], UR[2], UR[3], UR[4]);
@@ -241,7 +262,7 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
                         0.5 * (fL[n] + fR[n]) - 0.5 * alpha * (UR[n] - UL[n]);
                 }
 
-                Fy[fyIndex(i, j, k)] = faceFlux;
+                Fy[fyIndex(i, j, k)] = computeFaceFlux(UL, UR, fluxY);
             }
         }
     }
@@ -280,9 +301,10 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
     for (int j = 0; j < ny; j++) {
         for (int i = 0; i < nx; i++) {
             for (int k = 0; k <= nz; k++) {
-                // left cell is k-1, right cell is k, in interior coords
-                // if k=0 => left cell is k-1= -1 => that's in ghost
-                // region but Q has ghost cells => so let kL= k-1.
+                // left cell is k-1, right cell is k, in interior
+                // coords if k=0 => left cell is k-1= -1 => that's
+                // in ghost region but Q has ghost cells => so let
+                // kL= k-1.
 
                 int cL = Q.interiorIndex(i, j, k - 1);
                 int cR = Q.interiorIndex(i, j, k);
@@ -291,8 +313,9 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
                 auto UL = getU(cL);
                 auto UR = getU(cR);
 
-                // we can do minmod slope from neighbors cL-1, cL+1, etc.,
-                // or do simpler approach for brevity, let's do 1st-order
+                // we can do minmod slope from neighbors cL-1, cL+1,
+                // etc., or do simpler approach for brevity, let's
+                // do 1st-order
 
                 double aL = waveSpeed(UL[0], UL[1], UL[2], UL[3], UL[4]);
                 double aR = waveSpeed(UR[0], UR[1], UR[2], UR[3], UR[4]);
@@ -307,7 +330,7 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
                         0.5 * (fL[n] + fR[n]) - 0.5 * alpha * (UR[n] - UL[n]);
                 }
 
-                Fz[fzIndex(i, j, k)] = faceFlux;
+                Fz[fzIndex(i, j, k)] = computeFaceFlux(UL, UR, fluxZ);
             }
         }
     }
@@ -317,7 +340,6 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
     for (int j = 0; j < ny; j++) {
         for (int i = 0; i < nx; i++) {
             for (int k = 0; k < nz; k++) {
-
                 int c = Q.interiorIndex(i, j, k);
 
                 auto FL = Fz[fzIndex(i, j, k)];      // flux at left face
@@ -367,18 +389,17 @@ void computeL(const Field3D &Q, Field3D &LQ, const Field3D *gravField) {
 // runRK2 remains the same, but we do Q.applyBCs()
 // inside computeL each step, so no changes needed here
 //=====================================================
+
+/**
+ * @brief Advances the solution using a second-order Runge-Kutta scheme.
+ *
+ * @param Q The field to update.
+ * @param dt The time-step.
+ */
 void runRK2(Field3D &Q, double dt) {
     // create Qtemp, LQ etc. sized with same ghost
-    Field3D Qtemp(Q.Nx, Q.Ny, Q.Nz, Q.bbox, Q.nghost);
+    Field3D Qtemp = Q;
     Field3D LQ(Q.Nx, Q.Ny, Q.Nz, Q.bbox, Q.nghost);
-
-    // copy BC flags
-    Qtemp.bc_xmin = Q.bc_xmin;
-    Qtemp.bc_xmax = Q.bc_xmax;
-    Qtemp.bc_ymin = Q.bc_ymin;
-    Qtemp.bc_ymax = Q.bc_ymax;
-    Qtemp.bc_zmin = Q.bc_zmin;
-    Qtemp.bc_zmax = Q.bc_zmax;
 
     LQ.bc_xmin = Q.bc_xmin;
     LQ.bc_xmax = Q.bc_xmax;
@@ -387,18 +408,10 @@ void runRK2(Field3D &Q, double dt) {
     LQ.bc_zmin = Q.bc_zmin;
     LQ.bc_zmax = Q.bc_zmax;
 
-    // copy data from Q => Qtemp
-    Qtemp.rho = Q.rho;
-    Qtemp.rhou = Q.rhou;
-    Qtemp.rhov = Q.rhov;
-    Qtemp.rhow = Q.rhow;
-    Qtemp.E = Q.E;
-    Qtemp.phi = Q.phi;
-
     // Stage 1
     computeL(Q, LQ, &Q);  // calls Q.applyBCs() inside
-    // do the partial update over the entire domain (ghost included, but real
-    // update only needed interior)
+    // do the partial update over the entire domain (ghost included,
+    // but real update only needed interior)
     size_t tot = Q.rho.size();
     for (size_t n = 0; n < tot; n++) {
         double newRho = Q.rho[n] + dt * LQ.rho[n];
@@ -434,6 +447,14 @@ void runRK2(Field3D &Q, double dt) {
 // We'll just do interior to avoid ghost.
 // It's simpler to skip boundary cells anyway.
 //=====================================================
+
+/**
+ * @brief Computes the time step based on the CFL condition.
+ *
+ * @param Q The current field.
+ * @param cfl The CFL number.
+ * @return double The computed time step.
+ */
 double computeTimeStep(const Field3D &Q, double cfl) {
     // we only compute max speed in interior
     int nx = Q.Nx;
