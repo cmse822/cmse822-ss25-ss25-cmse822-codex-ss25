@@ -219,13 +219,19 @@ void Field3D::applyBCs() {
         //   int iStart = sendPlus ? (NxGhost - 2 * nghost) : nghost;
         //   int iEnd = sendPlus ? (NxGhost - nghost) : (2 * nghost);
         // Then, sequentially pack rho, rhou, rhov, rhow, E, and phi into buf.
+        int cnt = 0;
         for (int k = 0; k < NzGhost; k++) {
             for (int j = 0; j < NyGhost; j++) {
                 int iStart = sendPlus ? (NxGhost - 2 * nghost) : nghost;
                 int iEnd = sendPlus ? (NxGhost - nghost) : (2 * nghost);
-                int startIdx = index(iStart, j, k);
-                int endIdx = index(iEnd, j, k);
-                copyCell(buf, startIdx, endIdx);
+                for (int i = iStart; i < Endi; i++){
+                    buf[cnt++] = rho[index(i,j,k)];
+                    buf[cnt++] = rhou[index(i,j,k)];
+                    buf[cnt++] = rhov[index(i,j,k)];
+                    buf[cnt++] = rhow[index(i,j,k)];
+                    buf[cnt++] = E[index(i,j,k)];
+                    buf[cnt++] = phi[index(i,j,k)];
+                }
             }
         }
     };
@@ -235,13 +241,20 @@ void Field3D::applyBCs() {
         //   int iStart = plusSide ? (NxGhost - nghost) : 0;
         //   int iEnd = plusSide ? NxGhost : nghost;
         // Then, sequentially unpack the six field values from buf into the corresponding arrays.
+        // Stright up copied what he showed in class
+        int cnt = 0;
         for (int k = 0; k < NzGhost; k++) {
             for (int j = 0; j < NyGhost; j++) {
                 int iStart = plusSide ? (NxGhost - nghost) : 0;
                 int iEnd = plusSide ? NxGhost : nghost;
-                int startIdx = index(iStart, j, k);
-                int endIdx = index(iEnd, j, k);
-                copyCell(buf, startIdx, endIdx);
+                for (int i = iStart; i < Endi; i++){
+                    rho[index(i,j,k)] = buf[cnt++];
+                    rhou[index(i,j,k)] = buf[cnt++];
+                    rhov[index(i,j,k)] = buf[cnt++];
+                    rhow[index(i,j,k)] = buf[cnt++];
+                    E[index(i,j,k)] = buf[cnt++];
+                    phi[index(i,j,k)] = buf[cnt++];
+                }
             }
         }
     };
