@@ -224,7 +224,7 @@ void Field3D::applyBCs() {
             for (int j = 0; j < NyGhost; j++) {
                 int iStart = sendPlus ? (NxGhost - 2 * nghost) : nghost;
                 int iEnd = sendPlus ? (NxGhost - nghost) : (2 * nghost);
-                for (int i = iStart; i < Endi; i++){
+                for (int i = iStart; i < iEnd; i++){
                     buf[cnt++] = rho[index(i,j,k)];
                     buf[cnt++] = rhou[index(i,j,k)];
                     buf[cnt++] = rhov[index(i,j,k)];
@@ -247,7 +247,7 @@ void Field3D::applyBCs() {
             for (int j = 0; j < NyGhost; j++) {
                 int iStart = plusSide ? (NxGhost - nghost) : 0;
                 int iEnd = plusSide ? NxGhost : nghost;
-                for (int i = iStart; i < Endi; i++){
+                for (int i = iStart; i < iEnd; i++){
                     rho[index(i,j,k)] = buf[cnt++];
                     rhou[index(i,j,k)] = buf[cnt++];
                     rhov[index(i,j,k)] = buf[cnt++];
@@ -269,17 +269,23 @@ void Field3D::applyBCs() {
         // then call unpackX with plusSide set to true.
         size_t totalCount = NyGhost * NzGhost * nghost * 6;
 
-        std::vector<double> send_plus(totalCount), recv_plus(totalCount);
-        std::vector<double> send_minus(totalCount), recv_minus(totalCount);
+        std::vector<double> sendBuf(totalCount), recvBuf(totalCount);
+        int tag = 0;
 
-        packX(send_plus, sendPlus=True);
+        packX(sendBuf, true);
         // sendrecv rankPlusX rankMinusX 
+        MPI_Sendrecv(sendBuf.data(), totalCount, MPI_DOUBLE, rankPlusX, tag,
+                    recvBuf.data(), totalCount, MPI_DOUBLE, rankMinusX, tag,
+                    MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         //destination, contense, tag, size
-        unpackX(recv_minus, plusSide=False);
+        unpackX(recvBuf, false);
 
-        packX(send_minus, sendPlus=False);
+        packX(sendBuf, false);
         // sendrecv rankMinusX rankPlusX
-        unpackX(recv_plus, plusSide=True);
+        MPI_Sendrecv(sendBuf.data(), totalCount, MPI_DOUBLE, rankMinusX, tag,
+                    recvBuf.data(), totalCount, MPI_DOUBLE, rankPlusX, tag,
+                    MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        unpackX(recvBuf, true);
     }
 
     // --- Y-DIRECTION HALO EXCHANGE USING MPI_Sendrecv ---
@@ -291,13 +297,19 @@ void Field3D::applyBCs() {
             //   int jStart = sendPlus ? (NyGhost - 2 * nghost) : nghost;
             //   int jEnd = sendPlus ? (NyGhost - nghost) : (2 * nghost);
             // Pack rho, rhou, rhov, rhow, E, and phi, sequentially for each (k, i) over j range.
+            int cnt = 0;
             for (int k = 0; k < NzGhost; k++) {
                 for (int i = 0; i < NxGhost; i++) {
                     int jStart = sendPlus ? (NyGhost - 2 * nghost) : nghost;
                     int jEnd = sendPlus ? (NyGhost - nghost) : (2 * nghost);
-                    int startIdx = index(i, jStart, k);
-                    int endIdx = index(i, jEnd, k);
-                    copyCell(buf, startIdx, endIdx);
+                    for (int j = jStart; j < jEnd; j++){
+                        buf[cnt++] = rho[index(i,j,k)];
+                        buf[cnt++] = rhou[index(i,j,k)];
+                        buf[cnt++] = rhov[index(i,j,k)];
+                        buf[cnt++] = rhow[index(i,j,k)];
+                        buf[cnt++] = E[index(i,j,k)];
+                        buf[cnt++] = phi[index(i,j,k)];
+                    }
                 }
             }
         };
@@ -307,13 +319,19 @@ void Field3D::applyBCs() {
             //   int jStart = plusSide ? (NyGhost - nghost) : 0;
             //   int jEnd = plusSide ? NyGhost : nghost;
             // Unpack the six field values from buf into the corresponding (k, i) cells.
+            int cnt = 0;
             for (int k = 0; k < NzGhost; k++) {
                 for (int i = 0; i < NxGhost; i++) {
                     int jStart = plusSide ? (NyGhost - nghost) : 0;
                     int jEnd = plusSide ? NyGhost : nghost;
-                    int startIdx = index(i, jStart, k);
-                    int endIdx = index(i, jEnd, k);
-                    copyCell(buf, startIdx, endIdx);
+                    for (int j = jStart; j < jEnd; j++){
+                        rho[index(i,j,k)] = buf[cnt++];
+                        rhou[index(i,j,k)] = buf[cnt++];
+                        rhov[index(i,j,k)] = buf[cnt++];
+                        rhow[index(i,j,k)] = buf[cnt++];
+                        E[index(i,j,k)] = buf[cnt++];
+                        phi[index(i,j,k)] = buf[cnt++];
+                    }
                 }
             }
         };
@@ -325,16 +343,23 @@ void Field3D::applyBCs() {
         // Next, pack minus-side data, exchange accordingly, then call unpackY with plusSide set to true.
         size_t totalCount = NxGhost * NzGhost * nghost * 6;
         
-        std::vector<double> send_plus(totalCount), recv_plus(totalCount);
-        std::vector<double> send_minus(totalCount), recv_minus(totalCount);
+        std::vector<double> sendBuf(totalCount), recvBuf(totalCount);
+        int tag = 0;
 
-        packY(send_plus, sendPlus=True);
+        packY(sendBuf, true);
         // sendrecv rankPlusY rankMinusY
-        unpackY(recv_minus, plusSide=False);
+        MPI_Sendrecv(sendBuf.data(), totalCount, MPI_DOUBLE, rankPlusY, tag,
+                    recvBuf.data(), totalCount, MPI_DOUBLE, rankMinusY, tag,
+                    MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        //destination, contense, tag, size
+        unpackY(recvBuf, false);
 
-        packY(send_minus, sendPlus=False);
+        packY(sendBuf, false);
         // sendrecv rankMinusY rankPlusY
-        unpackY(recv_plus, plusSide=True);
+        MPI_Sendrecv(sendBuf.data(), totalCount, MPI_DOUBLE, rankMinusY, tag,
+                    recvBuf.data(), totalCount, MPI_DOUBLE, rankPlusY, tag,
+                    MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        unpackY(recvBuf, true);
     }
 
     // --- Z-DIRECTION HALO EXCHANGE USING MPI_Irecv + MPI_Isend ---
@@ -346,13 +371,19 @@ void Field3D::applyBCs() {
             //   int kStart = sendPlus ? (NzGhost - 2 * nghost) : nghost;
             //   int kEnd = sendPlus ? (NzGhost - nghost) : (2 * nghost);
             // Pack sequentially the six field values (rho, rhou, rhov, rhow, E, phi) for each (i, j).
+            int cnt = 0;
             for (int j = 0; j < NyGhost; j++) {
                 for (int i = 0; i < NxGhost; i++) {
                     int kStart = sendPlus ? (NzGhost - 2 * nghost) : nghost;
                     int kEnd = sendPlus ? (NzGhost - nghost) : (2 * nghost);
-                    int startIdx = index(i, j, kStart);
-                    int endIdx = index(i, j, kEnd);
-                    copyCell(buf, startIdx, endIdx);
+                    for (int k = kStart; k < kEnd; k++){
+                        buf[cnt++] = rho[index(i,j,k)];
+                        buf[cnt++] = rhou[index(i,j,k)];
+                        buf[cnt++] = rhov[index(i,j,k)];
+                        buf[cnt++] = rhow[index(i,j,k)];
+                        buf[cnt++] = E[index(i,j,k)];
+                        buf[cnt++] = phi[index(i,j,k)];
+                    }
                 }
             }
         };
@@ -362,13 +393,19 @@ void Field3D::applyBCs() {
             //   int kStart = plusSide ? (NzGhost - nghost) : 0;
             //   int kEnd = plusSide ? NzGhost : nghost;
             // Unpack the six field values from buf into the appropriate (i, j) cells.
+            int cnt = 0;
             for (int j = 0; j < NyGhost; j++) {
                 for (int i = 0; i < NxGhost; i++) {
                     int kStart = plusSide ? (NzGhost - nghost) : 0;
                     int kEnd = plusSide ? NzGhost : nghost;
-                    int startIdx = index(i, j, kStart);
-                    int endIdx = index(i, j, kEnd);
-                    copyCell(buf, startIdx, endIdx);
+                    for (int k = kStart; k < kEnd; k++){
+                        rho[index(i,j,k)] = buf[cnt++];
+                        rhou[index(i,j,k)] = buf[cnt++];
+                        rhov[index(i,j,k)] = buf[cnt++];
+                        rhow[index(i,j,k)] = buf[cnt++];
+                        E[index(i,j,k)] = buf[cnt++];
+                        phi[index(i,j,k)] = buf[cnt++];
+                    }
                 }
             }
         };
@@ -381,16 +418,23 @@ void Field3D::applyBCs() {
         // then call unpackZ with plusSide set to true.
         size_t totalCount = NxGhost * NyGhost * nghost * 6;
         
-        std::vector<double> send_plus(totalCount), recv_plus(totalCount);
-        std::vector<double> send_minus(totalCount), recv_minus(totalCount);
+        std::vector<double> sendBuf(totalCount), recvBuf(totalCount);
+        int tag = 0;
 
-        packZ(send_plus, sendPlus=True);
-        // sendrecv rankPlusZ rankMinusZ
-        unpackZ(recv_minus, plusSide=False);
+        packZ(sendBuf, true);
+        // sendrecv rankPlusX rankMinusX 
+        MPI_Sendrecv(sendBuf.data(), totalCount, MPI_DOUBLE, rankPlusZ, tag,
+                    recvBuf.data(), totalCount, MPI_DOUBLE, rankMinusZ, tag,
+                    MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        //destination, contense, tag, size
+        unpackZ(recvBuf, false);
 
-        packZ(send_minus, sendPlus=False);
-        // sendrecv rankMinusZ rankPlusZ
-        unpackZ(recv_plus, plusSide=True);
+        packZ(sendBuf, false);
+        // sendrecv rankMinusX rankPlusX
+        MPI_Sendrecv(sendBuf.data(), totalCount, MPI_DOUBLE, rankMinusZ, tag,
+                    recvBuf.data(), totalCount, MPI_DOUBLE, rankPlusZ, tag,
+                    MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        unpackZ(recvBuf, true);
     }
 }
 
