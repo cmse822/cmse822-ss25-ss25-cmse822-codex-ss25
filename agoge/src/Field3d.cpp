@@ -219,6 +219,15 @@ void Field3D::applyBCs() {
         //   int iStart = sendPlus ? (NxGhost - 2 * nghost) : nghost;
         //   int iEnd = sendPlus ? (NxGhost - nghost) : (2 * nghost);
         // Then, sequentially pack rho, rhou, rhov, rhow, E, and phi into buf.
+        for (int k = 0; k < NzGhost; k++) {
+            for (int j = 0; j < NyGhost; j++) {
+                int iStart = sendPlus ? (NxGhost - 2 * nghost) : nghost;
+                int iEnd = sendPlus ? (NxGhost - nghost) : (2 * nghost);
+                int startIdx = index(iStart, j, k);
+                int endIdx = index(iEnd, j, k);
+                copyCell(buf, startIdx, endIdx);
+            }
+        }
     };
     auto unpackX = [&](const std::vector<double> &buf, bool plusSide) {
         // Hint: Iterate over k and j indices.
@@ -226,6 +235,15 @@ void Field3D::applyBCs() {
         //   int iStart = plusSide ? (NxGhost - nghost) : 0;
         //   int iEnd = plusSide ? NxGhost : nghost;
         // Then, sequentially unpack the six field values from buf into the corresponding arrays.
+        for (int k = 0; k < NzGhost; k++) {
+            for (int j = 0; j < NyGhost; j++) {
+                int iStart = plusSide ? (NxGhost - nghost) : 0;
+                int iEnd = plusSide ? NxGhost : nghost;
+                int startIdx = index(iStart, j, k);
+                int endIdx = index(iEnd, j, k);
+                copyCell(buf, startIdx, endIdx);
+            }
+        }
     };
 
     // X-direction using MPI_Sendrecv with two buffers
@@ -236,6 +254,9 @@ void Field3D::applyBCs() {
         // then use unpackX with plusSide set to false.
         // Next, pack the minus-side data, send it to rankMinusX and receive from rankPlusX,
         // then call unpackX with plusSide set to true.
+        size_t totalCount = NyGhost * NzGhost * nghost * 6;
+        std::vector<double> send(totalCount);
+        std::vector<double> recv(totalCount);
     }
 
     // --- Y-DIRECTION HALO EXCHANGE USING MPI_Sendrecv ---
@@ -247,6 +268,15 @@ void Field3D::applyBCs() {
             //   int jStart = sendPlus ? (NyGhost - 2 * nghost) : nghost;
             //   int jEnd = sendPlus ? (NyGhost - nghost) : (2 * nghost);
             // Pack rho, rhou, rhov, rhow, E, and phi, sequentially for each (k, i) over j range.
+            for (int k = 0; k < NzGhost; k++) {
+                for (int i = 0; i < NxGhost; i++) {
+                    int iStart = sendPlus ? (NyGhost - 2 * nghost) : nghost;
+                    int iEnd = sendPlus ? (NyGhost - nghost) : (2 * nghost);
+                    int startIdx = index(iStart, i, k);
+                    int endIdx = index(iEnd, i, k);
+                    copyCell(buf, startIdx, endIdx);
+                }
+            }
         };
         auto unpackY = [&](const std::vector<double> &buf, bool plusSide) {
             // Hint: Iterate over k and i indices.
@@ -254,6 +284,15 @@ void Field3D::applyBCs() {
             //   int jStart = plusSide ? (NyGhost - nghost) : 0;
             //   int jEnd = plusSide ? NyGhost : nghost;
             // Unpack the six field values from buf into the corresponding (k, i) cells.
+            for (int k = 0; k < NzGhost; k++) {
+                for (int i = 0; i < NxGhost; i++) {
+                    int iStart = plusSide ? (NyGhost - nghost) : 0;
+                    int iEnd = plusSide ? NyGhost : nghost;
+                    int startIdx = index(iStart, i, k);
+                    int endIdx = index(iEnd, i, k);
+                    copyCell(buf, startIdx, endIdx);
+                }
+            }
         };
 
         // Hint: Compute totalCount = NxGhost * NzGhost * nghost * 6.
@@ -261,6 +300,9 @@ void Field3D::applyBCs() {
         // First, pack plus-side data, use MPI_Sendrecv to exchange with rankPlusY and rankMinusY,
         // then call unpackY with plusSide set to false.
         // Next, pack minus-side data, exchange accordingly, then call unpackY with plusSide set to true.
+        size_t totalCount = NxGhost * NzGhost * nghost * 6;
+        std::vector<double> send(totalCount);
+        std::vector<double> recv(totalCount);
     }
 
     // --- Z-DIRECTION HALO EXCHANGE USING MPI_Irecv + MPI_Isend ---
@@ -272,6 +314,15 @@ void Field3D::applyBCs() {
             //   int kStart = sendPlus ? (NzGhost - 2 * nghost) : nghost;
             //   int kEnd = sendPlus ? (NzGhost - nghost) : (2 * nghost);
             // Pack sequentially the six field values (rho, rhou, rhov, rhow, E, phi) for each (i, j).
+            for (int j = 0; j < NyGhost; j++) {
+                for (int i = 0; i < NxGhost; i++) {
+                    int iStart = sendPlus ? (NzGhost - 2 * nghost) : nghost;
+                    int iEnd = sendPlus ? (NzGhost - nghost) : (2 * nghost);
+                    int startIdx = index(iStart, i, j);
+                    int endIdx = index(iEnd, i, j);
+                    copyCell(buf, startIdx, endIdx);
+                }
+            }
         };
         auto unpackZ = [&](const std::vector<double> &buf, bool plusSide) {
             // Hint: Iterate over i and j indices.
@@ -279,6 +330,15 @@ void Field3D::applyBCs() {
             //   int kStart = plusSide ? (NzGhost - nghost) : 0;
             //   int kEnd = plusSide ? NzGhost : nghost;
             // Unpack the six field values from buf into the appropriate (i, j) cells.
+            for (int j = 0; j < NyGhost; j++) {
+                for (int i = 0; i < NxGhost; i++) {
+                    int iStart = plusSide ? (NzGhost - nghost) : 0;
+                    int iEnd = plusSide ? NzGhost : nghost;
+                    int startIdx = index(iStart, i, j);
+                    int endIdx = index(iEnd, i, j);
+                    copyCell(buf, startIdx, endIdx);
+                }
+            }
         };
 
         // Hint: Compute totalCount = NxGhost * NyGhost * nghost * 6.
@@ -287,6 +347,9 @@ void Field3D::applyBCs() {
         // then call unpackZ with plusSide set to false.
         // Next, pack minus-side data, exchange with rankMinusZ and rankPlusZ using MPI_Sendrecv,
         // then call unpackZ with plusSide set to true.
+        size_t totalCount = NxGhost * NyGhost * nghost * 6;
+        std::vector<double> send(totalCount);
+        std::vector<double> recv(totalCount);
     }
 }
 
