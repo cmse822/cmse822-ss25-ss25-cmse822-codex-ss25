@@ -273,7 +273,8 @@ void Field3D::applyBCs() {
         std::vector<double> send_minus(totalCount), recv_minus(totalCount);
 
         packX(send_plus, sendPlus=True);
-        // sendrecv rankPlusX rankMinusX
+        // sendrecv rankPlusX rankMinusX 
+        //destination, contense, tag, size
         unpackX(recv_minus, plusSide=False);
 
         packX(send_minus, sendPlus=False);
