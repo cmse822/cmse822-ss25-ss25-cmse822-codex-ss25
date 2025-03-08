@@ -1,6 +1,15 @@
 # Makefile for Agoge
 # Minimal excerpt focusing on compiler logic.
 
+# Non-blocking MPI option (0=blocking, 1=non-blocking)
+USE_NONBLOCKING_MPI ?= 0
+
+# Grid parameters with default values (can be overridden from command line)
+NX ?= 64
+NY ?= 64
+NZ ?= 64
+NGHOST ?= 1
+
 # Allow overriding the compiler via environment variable, else default
 CXX := mpic++
 ifeq ($(CXX),)
@@ -22,7 +31,9 @@ endif
 CXX_STD ?= -std=c++2a
 
 # Base flags (common to all compilers)
-CXXFLAGS := $(CXX_STD) -O3 -Wall -Wextra -MMD -MP -g 
+CXXFLAGS := $(CXX_STD) -O3 -Wall -Wextra -MMD -MP -g \
+            -DAGOGE_USE_NONBLOCKING_MPI=$(USE_NONBLOCKING_MPI) \
+            -DAGOGE_NX=$(NX) -DAGOGE_NY=$(NY) -DAGOGE_NZ=$(NZ) -DAGOGE_NGHOST=$(NGHOST)
 
 # -------------------------------
 # Additional compiler-specific flags
@@ -40,8 +51,9 @@ else ifneq ($(findstring g++,$(CXX)),)
     CXXFLAGS += -march=native 
     $(info Using GNU g++ compiler, adding -march=native)
 else
-    # e.g., clang++
-    $(info Using compiler: $(CXX) with generic flags)
+    # clang++ specific flags for optimization reports
+    CXXFLAGS += -march=native -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize -fsave-optimization-record -fopenmp-simd
+    $(info Using compiler: $(CXX) with vectorization reporting enabled)
 endif
 
 # HDF5 pkg-config logic, etc. (unchanged)...
@@ -106,6 +118,7 @@ TARGET := agoge_run
 
 # Default Target
 all: $(TARGET)
+	@echo "Build complete with grid parameters: NX=$(NX), NY=$(NY), NZ=$(NZ), NGHOST=$(NGHOST)"
 
 # Link Target
 $(TARGET): $(OBJ_FILES)
@@ -132,8 +145,23 @@ $(BUILD_PROB_DIR):
 clean:
 	rm -rf $(BUILD_DIR) $(TARGET)
 
+# Help target to show configuration options
+help:
+	@echo "Agoge Makefile Options:"
+	@echo "  make                    - Build with default parameters"
+	@echo "  make NX=128 NY=128 NZ=128  - Build with custom grid dimensions"
+	@echo "  make NGHOST=2          - Build with 2 ghost cells instead of default 1"
+	@echo "  make USE_NONBLOCKING_MPI=1 - Use non-blocking MPI"
+	@echo "  make clean             - Remove build files and executable"
+	@echo ""
+	@echo "Current configuration:"
+	@echo "  Grid size: $(NX) x $(NY) x $(NZ) with $(NGHOST) ghost cells"
+	@echo "  Non-blocking MPI: $(USE_NONBLOCKING_MPI)"
+	@echo "  Compiler: $(CXX)"
+	@echo "  Compiler flags: $(CXXFLAGS)"
+
 # ========================
 # 5. Phony Targets
 # ========================
 
-.PHONY: all clean
+.PHONY: all clean help
