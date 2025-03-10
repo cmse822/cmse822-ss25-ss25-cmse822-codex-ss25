@@ -58,7 +58,7 @@ Yes. The elements that can be computed independently are diagonals. So, the oute
 
 ## Exercise 2.6
 
-*Prove that $𝐸 = 1$ implies that all processors are active all the time. (Hint: suppose all processors finish their work in time $𝑇$, except for one processor in $𝑇′ < 𝑇$. What is $𝑇_𝑝$ in this case? Explore the above relations.)*
+Prove that $𝐸 = 1$ implies that all processors are active all the time. (Hint: suppose all processors finish their work in time $𝑇$, except for one processor in $𝑇′ < 𝑇$. What is $𝑇_𝑝$ in this case? Explore the above relations.)
 
 If we suppose that all but one processor finishes their work in time $T$ and the other finishing in time $T'$ where $T' \leq T$, $T_p$ is the following:
 
@@ -79,25 +79,25 @@ In this case, for $E$ to equal $1$, the following conditions must be met:
 
 Therefore
 
-$$E_p = \frac{Tp^2}{((p-1)*T + T)p}= \frac{Tp^2}{(p*T)p}=\frac{Tp^2}{(p^2*T)}=\frac{Tp^2}{Tp^2}=1$$
+$$E_p= \frac{Tp^2}{((p-1)T + T)p} = \frac{Tp^2}{(pT)p} = \frac{Tp^2}{(p^2T)}= \frac{Tp^2}{Tp^2} = 1$$
 
 From this, we see that for it to be true that $E=1$, all of the processors must have the same execution time, which is the ideal case as $T_1$ represents ‘the best time to solve the problem on a single processor’. This implies that the processors must all be running and have the same execution time to reach maximum efficiency.
 
 ## Exercise 2.10
 
-*Show that, with the scheme for parallel addition just outlined, you can multiply two matrices in $\log_2N$ time with $\frac{𝑁^3}{2}$ processors. What is the resulting efficiency?*
+Show that, with the scheme for parallel addition just outlined, you can multiply two matrices in $\log_2N$ time with $\frac{𝑁^3}{2}$ processors. What is the resulting efficiency?
 
 In a matrix-matrix multiplication of matrices with (N x N), each element is can be calculated by the formula:
 
-$(AB)_{ij} = \sum_{k=1}^{m}A_{ik}B_{kj}$  
+$(AB)\_{ij} = \sum\_{k=1}^{m}A\_{ik}B\_{kj}$  
 
 In this, we can see that each element of the resulting matrix $(AB)$ is independent of any other element in $(AB)$, and as such could be handled as one of $N^2$ parallel operations.
 
 Furthermore, each individual operation is essentially a sum of elements, and could therefore be handled by the same parallel summation algorithm as described in the textbook:
 
-1. Define $s^{(0)}_k = A_{ik}B_{kj}$.
-2. Iterate with $l = 1, 2, ... \log_2(N)$
-3. Compute $\frac{N}{2^l}$ partial sums: $s^{(l)}_{k} = s^{(l-1)}_{2k} + s^{(l-2)}_{2k+1}$
+1. Define $s^{(0)}\_k = A\_{ik}B\_{kj}$.
+2. Iterate with $l = 1, 2, ... \log\_2(N)$
+3. Compute $\frac{N}{2^l}$ partial sums: $s^{(l)}\_{k} = s^{(l-1)}\_{2k} + s^{(l-2)}\_{2k+1}$
 
 This operation has a known time of $\log_2 N$ when performed using $\frac{N}{2}$ processors. If we provide each of our $N^2$ matrix elements with $\frac{N}{2}$ processors to perform this sum, we get the expected value of $\frac{N^3}{2}$ processors. If we then assume that there are no startup or discretization costs, then the overall multiplication only takes as long as each operation, so the overall multiplication inherits the $\log_2 N$ time.
 
@@ -138,12 +138,14 @@ $F_s(500) = \left(\frac{1}{1001} + \frac{1000}{1001 * 500}\right)^{-1} = 333.67$
 $E(500) = 333.67 / 500 = .6673$
 
 We found:
-$$\begin{align}
-S(100) = 91 \\
-E(100) = .91 \\
-S(500) = 333.67 \\
-E(500) = .6673
-\end{align}$$
+
+$$S(100) = 91$$ 
+
+$$E(100) = .91$$ 
+
+$$S(500) = 333.67$$ 
+
+$$E(500) = .6673$$
 
 ## Exercise 2.12
 
@@ -203,9 +205,9 @@ Along the same lines, the operating term $\frac{C}{p-1}$ represents the influenc
 
 ## Exercise 2.17
 
-*We can formulate strong scaling as a runtime that is inversely proportional to the number of processors: $𝑡 = 𝑐/𝑝$*
+*We can formulate strong scaling as a runtime that is inversely proportional to the number of processors:* $𝑡 = 𝑐/𝑝$
 
-*Show that on a log-log plot, that is, you plot the logarithm of the runtime against the logarithm of the number of processors, you will get a straight line with slope $−1$. Can you suggest a way of dealing with a non-parallelizable section, that is, with a runtime $𝑡 = 𝑐 + 𝑐2/𝑝$?*
+*Show that on a log-log plot, that is, you plot the logarithm of the runtime against the logarithm of the number of processors, you will get a straight line with slope* $−1$*. Can you suggest a way of dealing with a non-parallelizable section, that is, with a runtime* $𝑡 = 𝑐 + 𝑐2/𝑝$?
 
 Below is code that plots runtime versus the number of processors on a logarithmic scale. You can see that the slope of this line is $-1$.
 
@@ -228,9 +230,9 @@ To deal with non-parallelizable section with a runtime $𝑡 = 𝑐 + 𝑐2/𝑝
 
 ## Exercise 2.19
 
-*In the above discussion we always implicitly compared a sequential algorithm and the parallel form of that same algorithm. However, in section 2.2.1 we noted that sometimes speedup is defined as a comparison of a parallel algorithm with the best sequential algorithm for the same problem. With that in mind, compare a parallel sorting algorithm with runtime $(log\ n)^2$ (for instance, bitonic sort; section 9.6) to the best serial algorithm, which has a running time of $n\ log\ n$.*
+*In the above discussion we always implicitly compared a sequential algorithm and the parallel form of that same algorithm. However, in section 2.2.1 we noted that sometimes speedup is defined as a comparison of a parallel algorithm with the best sequential algorithm for the same problem. With that in mind, compare a parallel sorting algorithm with runtime* $(log\ n)^2$ *(for instance, bitonic sort; section 9.6) to the best serial algorithm, which has a running time of* $n\ log\ n$.
 
-*Show that in the weak scaling case of $n=p$ speedup is $p/log\ p$. Show that in the strong scaling case speedup is a descending function of $n$.*
+*Show that in the weak scaling case of* $n=p$ *speedup is* $p/log\ p$*. Show that in the strong scaling case speedup is a descending function of* $n$
 
 For this problem, assume the algorithm has a runtime of $n\log n$ using the best serial algorithm and a runtime of $(\log n)^2$ using a parallel algorithm.
 
