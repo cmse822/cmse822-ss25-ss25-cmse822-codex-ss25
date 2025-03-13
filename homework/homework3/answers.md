@@ -16,7 +16,21 @@ Starter code for these exercises maybe found [here](https://github.com/VictorEij
 
 ### Exercise 3.2
 
-_Fill in here._
+1. Generate a random number x_i
+2. use an all-reduce operations to compute the global sum
+3. should be 1
+
+1. Initialize MPI
+2. Generate random number
+3. compute sum
+
+srand(static_cast<unsigned>(time(nullptr)), +rank);
+double x_1 = 
+
+all reduce
+...
+...
+all reduce
 
 ### Exercise 3.3, 3.4
 
