@@ -46,42 +46,42 @@ When $\alpha$ is dependent on $t$, then for each step on the iterative approach 
 
 For operation B and $\alpha$ dependent on $t$ has a smaller impact. As we are only solving smaller steps on each row, we don't need to compute the whole $\alpha I$ matrix in order to complete the matrix multiplication, leading to a higher speed up when compared to a dependent $\alpha$ with operation A.
 
-### Exercise 7.39
+## Exercise 7.39
 
 _Fill in here._
 
 ## [Parallel Programming with MPI and OpenMP](https://cmse822.github.io/assets/EijkhoutParallelProgramming.pdf)
 
-Starter code for these exercises maybe found [here](https://github.com/VictorEijkhout/TheArtOfHPC_vol2_parallelprogramming/tree/main/exercises/exercises###mpi###cxx).
+Starter code for these exercises maybe found [here](https://github.com/VictorEijkhout/TheArtOfHPC_vol2_parallelprogramming/tree/main/exercises/exercises##mpi##cxx).
 
-### Exercise 3.2
-
-_Fill in here._
-
-### Exercise 3.3, 3.4
+## Exercise 3.2
 
 _Fill in here._
 
-### Exercise 3.6
+## Exercise 3.3, 3.4
 
 _Fill in here._
 
-### Exercise 3.7
+## Exercise 3.6
 
 _Fill in here._
 
-### Exercise 3.16
+## Exercise 3.7
 
 _Fill in here._
 
-### Exercise 3.17, 3.18
+## Exercise 3.16
 
 _Fill in here._
 
-### Exercise 3.19
+## Exercise 3.17, 3.18
 
 _Fill in here._
 
-### Exercise 3.23, 3.24
+## Exercise 3.19
+
+_Fill in here._
+
+## Exercise 3.23, 3.24
 
 _Fill in here._
