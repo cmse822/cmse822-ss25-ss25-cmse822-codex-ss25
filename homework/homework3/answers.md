@@ -65,7 +65,7 @@ _Fill in here._
 
 In case we gather the whole distributed array on the sindle processor is not good formostly 2 reasons:
 
-1. You need all other processes to communicate with that processor. This generates could generate a big wait time.
+1. You need all other processes to communicate with that processor. This could generate a significant wait time.
 2. Loss of parallel efficiency. If all processors communicate into a single processor, then part of the computation needs to be done sequencially, leading to a worse parallel efficiency. Depending on how big the array is it could also have a big load impalance on a single processor.
 
 ## Exercise 3.6
