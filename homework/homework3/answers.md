@@ -44,4 +44,12 @@ _Fill in here._
 
 ### Exercise 3.23, 3.24
 
-_Fill in here._
+First we consider the case where the root process sends to each of the other $p-1$ processes linearly. Since the root process can only send to 1 at a time, the time to get all the data sent is $\beta n (p-1)$. Afterwards, the data will reach the last process sent to after $\alpha$ time. This term is not greater since the previous sends will already be in flight and we only need to consider the one in "last place", or the final process sent to. Overall, the total time is
+$$\alpha + \beta n(p-1)$$
+
+Now, we consider sending the data in a binary tree pattern. Specifically, the root begins by sending the data to 2 processes, those 2 processes each send to 2 processes, and so on until all processes have received it.
+
+Communication at a single level of the tree requires some number of processes (the number does not matter since they all send concurrently) sending to at most 2 other processes. If a process has to send to 2 others it will take $\alpha + 2\beta n$ time and if it only has 1 it will simply be $\alpha + \beta n$. The number of communication levels in the tree is simply $\lfloor\log p\rfloor$. Then, in most cases the communication time will be
+$$(\alpha + 2\beta n)\lfloor \log p\rfloor = \alpha\lfloor\log p\rfloor + 2\beta n\lfloor\log p\rfloor$$
+
+It is possible that the last level of the binary communication tree does not have enough processes, such that every process only needs to send to at most 1 other. In this case, the $\beta$ term would instead be $(2\lfloor \log p\rfloor - 1)\beta n$. This can be considered a lower bound on this term, while $\alpha \lfloor\log p\rfloor$ is a lower bound on the first term.
