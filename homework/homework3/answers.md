@@ -12,8 +12,7 @@ $$
 
 ### Operation Count:
 
-Considering we solve it using an iterativa approach as Conjugate Gradient, the operations count is roughly $O(N^2)$ per step. The number of steps can vary depending on the preconditioning before the operation but can vary from a constant k to a worst case of $N$. In this case the operation count for the iterative method ranges from $O(N^2)$ to $O(N^3)$
-
+Considering we solve it using an iterative approach as Conjugate Gradient, the operations count is roughly $O(N^2)$ per step. The number of steps can vary depending on the preconditioning before the operation but can vary from a constant k to a worst case of $N$. In this case the operation count for the iterative method ranges from $O(N^2)$ to $O(N^3)$
 ### Parallel Performance:
 
 While the matrix multiplication can be made in parallel, each iteration still depends on the previous iteration to be calculating, leaving less space to be made parallel.
