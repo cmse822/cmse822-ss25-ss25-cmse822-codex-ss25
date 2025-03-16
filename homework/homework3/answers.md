@@ -27,8 +27,7 @@ $$
 
 The operator splitting approach rewrites the equation in a way that allows you to solve two simpler 1D problems instead of one big 2D problem.
 
-Each of the directions requires a 1D system to be solved, which requires $O(N^2)$ operarions ($N$ rows and $O(N)$ for ach row), as there are two directions the total time complexity is $2*O(N^2)$ which reduces to $O(N^2)$.
-
+Each of the directions requires a 1D system to be solved, which requires $O(N^2)$ operations ($N$ rows and $O(N)$ for each row), as there are two directions the total time complexity is $2*O(N^2)$ which reduces to $O(N^2)$.
 ### Parallel Performance
 
 Even though is is possible that both equations have the same time complexity, the **operation splitting** approach has a higher parallelization possibility.
