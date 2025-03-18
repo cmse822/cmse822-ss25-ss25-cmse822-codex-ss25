@@ -39,8 +39,9 @@ void initOutputDirectory(const std::string &pattern) {
  *
  * @param Q The Field3D instance containing simulation data.
  * @param filename The output HDF5 file path.
+ * @param current_time The current simulation time.
  */
-void writeFieldHDF5(const Field3D &Q, const std::string &filename) {
+void writeFieldHDF5(const Field3D &Q, const std::string &filename, double current_time = 0.0) {
     using namespace H5;
     try {
         // Create (or truncate) the file
@@ -145,6 +146,10 @@ void writeFieldHDF5(const Field3D &Q, const std::string &filename) {
         Attribute attr_local = grid.createAttribute("local_dimensions", PredType::NATIVE_INT, dims_space);
         attr_local.write(PredType::NATIVE_INT, local_interior);
 
+        // Add current simulation time as an attribute
+        Attribute attr_time = grid.createAttribute("simulation_time", PredType::NATIVE_DOUBLE, scalar_space);
+        attr_time.write(PredType::NATIVE_DOUBLE, &current_time);
+
     } catch (const H5::Exception &err) {
         std::cerr << "HDF5 write error: " << err.getDetailMsg() << std::endl;
         throw;
@@ -158,21 +163,33 @@ void writeFieldHDF5(const Field3D &Q, const std::string &filename) {
  * @param Q The Field3D data to write.
  * @param problemName The problem name.
  * @param rank The MPI process rank.
+ * @param current_time The current simulation time.
+ * @param outputDir The base output directory.
  */
-void performFieldIO(const Field3D &Q, const std::string &problemName, int rank) {
+void performFieldIO(const Field3D &Q, const std::string &problemName, int rank, 
+                    double current_time, const std::string &outputDir) {
     MPI_Comm_size(MPI_COMM_WORLD, &g_totalRanks);
 
-    // Build directory name e.g., "output/Sedov_004ranks_0000"
+    // Build directory name e.g., "output_dir/Sedov_004ranks_0000"
     std::ostringstream dirStream;
-    dirStream << "output/" << problemName << "_" << g_totalRanks << "ranks_" 
+    dirStream << outputDir << "/" << problemName << "_" << g_totalRanks << "ranks_" 
               << std::setw(4) << std::setfill('0') << g_ioEpochCounter;
     std::string dirName = dirStream.str();
-    
-    // On first output run, let only rank 0 remove directories matching the naming scheme.
-    if (g_ioEpochCounter == 0 && rank == 0) {
-        std::string pattern = "output/" + problemName + "_" + std::to_string(g_totalRanks) + "ranks_*";
+
+    // On each output run, let only rank 0 remove directories matching the
+    // naming scheme.
+    if (rank == 0) {
+        // Build the specific directory pattern for this epoch
+        std::ostringstream patternStream;
+        patternStream << outputDir << "/" << problemName << "_" << g_totalRanks
+                      << "ranks_" << std::setw(4) << std::setfill('0')
+                      << g_ioEpochCounter;
+        std::string pattern = patternStream.str();
+
+        // Remove any existing directory for this specific epoch
         initOutputDirectory(pattern);
     }
+    
     // Synchronize all ranks so that removal is complete.
     MPI_Barrier(MPI_COMM_WORLD);
     
@@ -180,13 +197,13 @@ void performFieldIO(const Field3D &Q, const std::string &problemName, int rank) 
     std::string mkdirCmd = "mkdir -p " + dirName;
     system(mkdirCmd.c_str());
     
-    // Build file name e.g., "output/Sedov_004ranks_0000/rank_" << std::setw(4) << std::setfill('0') << rank << ".h5";
+    // Build file name using output directory
     std::ostringstream fileStream;
     fileStream << dirName << "/rank_" << std::setw(4) << std::setfill('0') << rank << ".h5";
     std::string fileName = fileStream.str();
     
-    if (rank == 0) std::cout << "Writing HDF5 files: " << dirName << "\n";
-    writeFieldHDF5(Q, fileName);
+    if (rank == 0) std::cout << "Writing HDF5 files: " << dirName << " at time = " << current_time << "\n";
+    writeFieldHDF5(Q, fileName, current_time);
     g_ioEpochCounter++;
 }
 

@@ -22,7 +22,6 @@
 #include "PerformanceMonitor.hpp"
 
 // Our parameter system
-#include "BoundaryManager.hpp"
 #include "ParameterSystem.hpp"
 
 /**
@@ -122,9 +121,6 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    // set the boundary conditions
-    // agoge::BoundaryManager::initBCsFromParameters(params);
-
     std::string gravMethod = params.getString("GravityCollapse.grav_method");
     agoge::gravity::GravityMethod method =
         agoge::gravity::GravityMethod::NAIVE_DFT;
@@ -134,7 +130,11 @@ int main(int argc, char** argv) {
 
     bool doEulerUpdate = params.getBool("do_euler_update");
     bool doIO = params.getBool("do_io");
+
     const int scrn_out_freq = params.getInt("screen_out_interval");
+    
+    // Get the output directory parameter
+    std::string outputDir = params.getString("output_dir");
 
     // 2) Get GLOBAL Nx, Ny, Nz, domain, etc.
     const int global_Nx = params.getInt("nx");
@@ -156,7 +156,7 @@ int main(int argc, char** argv) {
     int Px = 1, Py = 1, Pz = 1;
     {
         // Determine Px by scanning downward from cube root
-        int cube = std::pow(size, 1.0 / 3.0);
+        int cube = round(std::pow(size, 1.0 / 3.0));
         for (int i = cube; i >= 1; i--) {
             if (size % i == 0) {
                 Px = i;
@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
             }
         }
         int rem = size / Px;
-        int sq = std::sqrt(rem);
+        int sq = round(std::sqrt(rem));
         for (int i = sq; i >= 1; i--) {
             if (rem % i == 0) {
                 Py = i;
@@ -214,7 +214,7 @@ int main(int argc, char** argv) {
     
 
     // Update Field3D initialization with local sizes and local bounding box:
-    agoge::Field3D Q(local_Nx, local_Ny, local_Nz, localBox, nghost);
+    agoge::Field3D Q(local_Nx, local_Ny, local_Nz, localBox);
 
     // --- Set metadata for global domain reconstruction ---
     Q.global_bbox = {global_xmin, global_xmax, global_ymin,
@@ -228,69 +228,44 @@ int main(int argc, char** argv) {
     Q.subdomain_x = myI;
     Q.subdomain_y = myJ;
     Q.subdomain_z = myK;
-    Q.nghost = nghost;
     Q.myRank = rank;
     Q.mpiSize = size;
 
-    // Initialize neighbor ranks to MPI_PROC_NULL
-    Q.rankMinusX = MPI_PROC_NULL;
-    Q.rankPlusX = MPI_PROC_NULL;
-    Q.rankMinusY = MPI_PROC_NULL;
-    Q.rankPlusY = MPI_PROC_NULL;
-    Q.rankMinusZ = MPI_PROC_NULL;
-    Q.rankPlusZ = MPI_PROC_NULL;
-
-    // Determine neighbor ranks explicitly for outflow BCs.
-    // Left neighbor in x:
+    // Step 1: Standard neighbor assignment for all ranks (works for both outflow and periodic)
+    // X-direction neighbors
     Q.rankMinusX = (myI > 0) ? (rank - 1) : MPI_PROC_NULL;
-    // Right neighbor in x:
     Q.rankPlusX = (myI < Px - 1) ? (rank + 1) : MPI_PROC_NULL;
-    // Minus neighbor in y:
+
+    // Y-direction neighbors
     Q.rankMinusY = (myJ > 0) ? (rank - Px) : MPI_PROC_NULL;
-    // Plus neighbor in y:
     Q.rankPlusY = (myJ < Py - 1) ? (rank + Px) : MPI_PROC_NULL;
-    // Minus neighbor in z:
+
+    // Z-direction neighbors
     Q.rankMinusZ = (myK > 0) ? (rank - (Px * Py)) : MPI_PROC_NULL;
-    // Plus neighbor in z:
     Q.rankPlusZ = (myK < Pz - 1) ? (rank + (Px * Py)) : MPI_PROC_NULL;
 
-    // Set correct neighbor ranks for PERIODIC in each dimension:
-    if (params.getBoundaryCondition("bc_xmin") == agoge::config::BoundaryCondition::PERIODIC) {
-        if (myI == 0) {
-            // Hint: Set Q.rankMinusX to the rank of the process at the opposite end in the x-direction.
-            // Q.rankMinusX = ...
-        }
+    // Step 2: Override only boundary connections for periodic BCs
+    // Only update the domain boundaries that are periodic, leaving outflow as MPI_PROC_NULL
+    if (params.getBoundaryCondition("bc_xmin") == agoge::config::BoundaryCondition::PERIODIC && myI == 0) {
+        Q.rankMinusX = myK * (Px * Py) + myJ * Px + (Px - 1);
     }
-    if (params.getBoundaryCondition("bc_xmax") == agoge::config::BoundaryCondition::PERIODIC) {
-        if (myI == Px - 1) {
-            // Hint: Set Q.rankPlusX to the rank of the process at the opposite end in the x-direction.
-            // Q.rankPlusX = ...
-        }
+    if (params.getBoundaryCondition("bc_xmax") == agoge::config::BoundaryCondition::PERIODIC && myI == Px - 1) {
+        Q.rankPlusX = myK * (Px * Py) + myJ * Px + 0;
     }
-    if (params.getBoundaryCondition("bc_ymin") == agoge::config::BoundaryCondition::PERIODIC) {
-        if (myJ == 0) {
-            // Hint: Set Q.rankMinusY to the rank of the process at the opposite end in the y-direction.
-            // Q.rankMinusY = ...
-        }
+    if (params.getBoundaryCondition("bc_ymin") == agoge::config::BoundaryCondition::PERIODIC && myJ == 0) {
+        Q.rankMinusY = myK * (Px * Py) + (Py - 1) * Px + myI;
     }
-    if (params.getBoundaryCondition("bc_ymax") == agoge::config::BoundaryCondition::PERIODIC) {
-        if (myJ == Py - 1) {
-            // Hint: Set Q.rankPlusY to the rank of the process at the opposite end in the y-direction.
-            // Q.rankPlusY = ...
-        }
+    if (params.getBoundaryCondition("bc_ymax") == agoge::config::BoundaryCondition::PERIODIC && myJ == Py - 1) {
+        Q.rankPlusY = myK * (Px * Py) + 0 * Px + myI;
     }
-    if (params.getBoundaryCondition("bc_zmin") == agoge::config::BoundaryCondition::PERIODIC) {
-        if (myK == 0) {
-            // Hint: Set Q.rankMinusZ to the rank of the process at the opposite end in the z-direction.
-            // Q.rankMinusZ = ...
-        }
+    if (params.getBoundaryCondition("bc_zmin") == agoge::config::BoundaryCondition::PERIODIC && myK == 0) {
+        Q.rankMinusZ = (Pz - 1) * (Px * Py) + myJ * Px + myI;
     }
-    if (params.getBoundaryCondition("bc_zmax") == agoge::config::BoundaryCondition::PERIODIC) {
-        if (myK == Pz - 1) {
-            // Hint: Set Q.rankPlusZ to the rank of the process at the opposite end in the z-direction.
-            // Q.rankPlusZ = ...
-        }
+    if (params.getBoundaryCondition("bc_zmax") == agoge::config::BoundaryCondition::PERIODIC && myK == Pz - 1) {
+        Q.rankPlusZ = 0 * (Px * Py) + myJ * Px + myI;
     }
+
+    Q.allocateMPIBuffers();
 
     // Print out neighbor ranks for debugging
     if (rank == 0) {
@@ -298,6 +273,11 @@ int main(int argc, char** argv) {
                   << ", Nz=" << global_Nz << "\n";
         std::cout << "Domain decomposition: Px=" << Px << ", Py=" << Py
                   << ", Pz=" << Pz << "\n";
+        std::cout << "Rank 0 neighbors: "
+                  << "rankMinusX=" << Q.rankMinusX << ", rankPlusX=" << Q.rankPlusX
+                  << ", rankMinusY=" << Q.rankMinusY << ", rankPlusY=" << Q.rankPlusY
+                  << ", rankMinusZ=" << Q.rankMinusZ << ", rankPlusZ=" << Q.rankPlusZ
+                  << "\n";
     }
 
     // 3) Initialize with the chosen problem (uses local Q)
@@ -306,12 +286,8 @@ int main(int argc, char** argv) {
     bool gravityEnabled = params.getBool("use_gravity");
 
     // 4) Set up boundary conditions (once), reading from param
-    Q.bc_xmin = params.getBoundaryCondition("bc_xmin");
-    Q.bc_xmax = params.getBoundaryCondition("bc_xmax");
-    Q.bc_ymin = params.getBoundaryCondition("bc_ymin");
-    Q.bc_ymax = params.getBoundaryCondition("bc_ymax");
-    Q.bc_zmin = params.getBoundaryCondition("bc_zmin");
-    Q.bc_zmax = params.getBoundaryCondition("bc_zmax");
+    // Replace boundary condition setting with initBCsFromParameters method
+    Q.initBCsFromParameters(params);
 
     // 5) time stepping with "sound_crossings"
     double cflVal = params.getDouble("cfl");
@@ -330,7 +306,7 @@ int main(int argc, char** argv) {
 
     // Initial output (epoch 0) - replaced with performFieldIO
     if (doIO) {
-        agoge::io::performFieldIO(Q, problem_name, rank);
+        agoge::io::performFieldIO(Q, problem_name, rank, 0.0, outputDir);
     }
 
     // Start main time loop, but in terms of totalTime
@@ -408,6 +384,8 @@ int main(int argc, char** argv) {
             std::cout << "Step=" << step << ", time=" << currentTime << "/"
                       << totalTime << ", dt=" << dt << "\n";
         }
+        // Compute dt from Euler solver & cfl for the next step
+        dt = std::min(1.2 * dt, agoge::euler::computeTimeStep(Q, cflVal));
     }
 
     agoge::PerformanceMonitor::instance().stopTimer("timeLoop");
@@ -422,7 +400,7 @@ int main(int argc, char** argv) {
 
     // Final output (e.g., epoch 1) - replaced with performFieldIO
     if (doIO) {
-        agoge::io::performFieldIO(Q, problem_name, rank);
+        agoge::io::performFieldIO(Q, problem_name, rank, currentTime, outputDir);
     }
 
     if (rank == 0) {

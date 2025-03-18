@@ -1,8 +1,8 @@
 import csv
 import matplotlib.pyplot as plt
 
-# Use the weak scaling CSV file
-csv_path = "../agoge/scaling_logs/zone_updates_weak.csv"  # adjust path if needed
+# Use the strong scaling CSV file
+csv_path = "../agoge/scaling_logs/zone_updates_strong_nonblocking_periodic.csv"  # adjust path if needed
 
 # Read CSV using the built-in csv module and group data by baseline (zones per process).
 data = {}
@@ -33,12 +33,12 @@ for i, baseline in enumerate(unique_baselines):
     plt.plot(procs, updates, linestyle, label=f"Baseline={baseline}", markersize=8)
 plt.xlabel("Processor Count", fontsize=12)
 plt.ylabel("Zone Updates per Second (M)", fontsize=12)
-plt.title("Weak Scaling: Zone Updates vs. Processor Count", fontsize=14)
+plt.title("Strong Scaling: Zone Updates vs. Processor Count", fontsize=14)
 plt.legend(title="Zones per Process", fontsize=10)
 plt.loglog()
 plt.grid(True, linestyle="--", alpha=0.6)
 plt.tight_layout()
-plt.savefig("weak_performance_plot.png", dpi=300)
+plt.savefig("strong_performance_plot.png", dpi=300)
 # plt.show()
 
 # ----------------- Second Plot: Normalized by Processor Count -----------------
@@ -52,12 +52,12 @@ for i, baseline in enumerate(unique_baselines):
     plt.plot(procs, norm_updates, linestyle, label=f"Baseline={baseline}", markersize=8)
 plt.xlabel("Processor Count", fontsize=12)
 plt.ylabel("Zone Updates per Core-second (M)", fontsize=12)
-plt.title("Weak Scaling: Normalized Zone Updates per Core-second", fontsize=14)
+plt.title("strong Scaling: Normalized Zone Updates per Core-second", fontsize=14)
 plt.legend(title="Zones per Process", fontsize=10)
 plt.loglog()
 plt.grid(True, linestyle="--", alpha=0.6)
 plt.tight_layout()
-plt.savefig("weak_normalized_performance_plot.png", dpi=300)
+plt.savefig("strong_normalized_performance_plot.png", dpi=300)
 # plt.show()
 
 # ----------------- Third Plot: Parallel Efficiency -----------------
@@ -71,10 +71,10 @@ for i, baseline in enumerate(unique_baselines):
     plt.plot(procs, efficiency, linestyle, label=f"Baseline={baseline}", markersize=8)
 plt.xlabel("Processor Count", fontsize=12)
 plt.ylabel("Parallel Efficiency", fontsize=12)
-plt.title("Weak Scaling: Parallel Efficiency vs. Processor Count", fontsize=14)
+plt.title("strong Scaling: Parallel Efficiency vs. Processor Count", fontsize=14)
 plt.legend(title="Zones per Process", fontsize=10)
 plt.grid(True, linestyle="--", alpha=0.6)
 plt.semilogx()  # x-axis log scale; linear y-axis
 plt.tight_layout()
-plt.savefig("weak_parallel_efficiency_plot.png", dpi=300)
+plt.savefig("strong_parallel_efficiency_plot.png", dpi=300)
 plt.show()

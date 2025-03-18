@@ -316,9 +316,9 @@ namespace agoge
                     for (int i = 0; i < Nx; i++)
                     {
                         // map to interior index
-                        int iG = i + Q.nghost;
-                        int jG = j + Q.nghost;
-                        int kG = k + Q.nghost;
+                        int iG = i + config::Ng;
+                        int jG = j + config::Ng;
+                        int kG = k + config::Ng;
                         int iField = Q.index(iG, jG, kG);
                         realBuf[i + Nx * (j + Ny * k)] = Q.rho[iField];
                     }
@@ -406,9 +406,9 @@ namespace agoge
                     {
                         for (int i = 0; i < Nx; i++)
                         {
-                            int iG = i + Q.nghost;
-                            int jG = j + Q.nghost;
-                            int kG = k + Q.nghost;
+                            int iG = i + config::Ng;
+                            int jG = j + config::Ng;
+                            int kG = k + config::Ng;
                             int iField = Q.index(iG, jG, kG);
                             int idx = i + Nx * (j + Ny * k);
                             Q.phi[iField] = tmpReal[idx];
@@ -426,9 +426,9 @@ namespace agoge
                     {
                         for (int i = 0; i < Nx; i++)
                         {
-                            int iG = i + Q.nghost;
-                            int jG = j + Q.nghost;
-                            int kG = k + Q.nghost;
+                            int iG = i + config::Ng;
+                            int jG = j + config::Ng;
+                            int kG = k + config::Ng;
                             int iField = Q.index(iG, jG, kG);
 
                             int idx = i + Nx * (j + Ny * k);

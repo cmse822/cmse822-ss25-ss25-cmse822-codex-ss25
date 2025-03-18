@@ -4,6 +4,7 @@
 #include <cctype>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 namespace agoge {
 
@@ -55,6 +56,9 @@ void ParameterSystem::setDefaults() {
 
     // number of steps between screen output
     defaults_["screen_out_interval"] = "2";
+
+    // output directory
+    defaults_["output_dir"] = "\"output\"";
 }
 
 // Adds or overrides a default parameter with a given key-value pair.
@@ -63,22 +67,65 @@ void ParameterSystem::addDefault(const std::string &key,
     defaults_[key] = value;
 }
 
-// Attempts to parse a YAML file; logs an error if parsing fails.
+// Check if parameter exists
+bool ParameterSystem::hasParameter(const std::string &key) const {
+    return !getRaw(key).empty();
+}
+
+// Parse a YAML file and populate yamlData_ map
 bool ParameterSystem::readYAML(const std::string &filename) {
-    bool ok = parser_.parseFile(filename);
-    if (!ok) {
-        std::cerr << "[ParameterSystem] Could not parse YAML: " << filename
-                  << "\n";
+    std::ifstream fin(filename);
+    if (!fin.is_open()) {
+        std::cerr << "[ParameterSystem] Could not open YAML file: " << filename << "\n";
+        return false;
     }
-    return ok;
+
+    std::string line;
+    while (std::getline(fin, line)) {
+        // Trim whitespace
+        line = trim(line);
+        // Skip empty or comment lines
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
+
+        // Parse "key: value"
+        auto kv = parseLine(line);
+        if (!kv.first.empty()) {
+            yamlData_[kv.first] = kv.second;
+        }
+    }
+
+    return true;
+}
+
+// Parse a line of the format "key: value"
+std::pair<std::string, std::string> ParameterSystem::parseLine(const std::string &line) const {
+    // Find first colon
+    auto pos = line.find(':');
+    if (pos == std::string::npos) {
+        // Not a valid "key: val" line
+        return std::make_pair("", "");
+    }
+    // split
+    std::string key = line.substr(0, pos);
+    std::string val = line.substr(pos+1);
+
+    // trim
+    key = trim(key);
+    val = trim(val);
+
+    return std::make_pair(key, val);
 }
 
 // Returns the parameter value as a raw string; checks both parsed YAML and defaults.
 std::string ParameterSystem::getRaw(const std::string &key) const {
-    if (parser_.hasKey(key)) {
-        return parser_.getString(key);
+    auto it = yamlData_.find(key);
+    if (it != yamlData_.end()) {
+        return it->second;
     }
-    auto it = defaults_.find(key);
+    
+    it = defaults_.find(key);
     if (it != defaults_.end()) {
         return it->second;
     }

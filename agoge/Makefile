@@ -5,9 +5,7 @@
 USE_NONBLOCKING_MPI ?= 0
 
 # Grid parameters with default values (can be overridden from command line)
-NX ?= 64
-NY ?= 64
-NZ ?= 64
+NTILE ?= 16
 NGHOST ?= 1
 
 # Allow overriding the compiler via environment variable, else default
@@ -25,15 +23,16 @@ else ifeq ($(UNAME_S),Linux)
     OS := Linux
 else
     OS := Unknown
+
 endif
 
 # C++ Standard (default to -std=c++2a)
-CXX_STD ?= -std=c++2a
+CXX_STD ?= -std=c++23
 
 # Base flags (common to all compilers)
 CXXFLAGS := $(CXX_STD) -O3 -Wall -Wextra -MMD -MP -g \
             -DAGOGE_USE_NONBLOCKING_MPI=$(USE_NONBLOCKING_MPI) \
-            -DAGOGE_NX=$(NX) -DAGOGE_NY=$(NY) -DAGOGE_NZ=$(NZ) -DAGOGE_NGHOST=$(NGHOST)
+            -DAGOGE_NTILE=$(NTILE) -DAGOGE_NGHOST=$(NGHOST)
 
 # -------------------------------
 # Additional compiler-specific flags
@@ -52,7 +51,7 @@ else ifneq ($(findstring g++,$(CXX)),)
     $(info Using GNU g++ compiler, adding -march=native)
 else
     # clang++ specific flags for optimization reports
-    CXXFLAGS += -march=native -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize -fsave-optimization-record -fopenmp-simd
+    CXXFLAGS += -march=native -fopenmp-simd -ftree-vectorize
     $(info Using compiler: $(CXX) with vectorization reporting enabled)
 endif
 
@@ -163,5 +162,6 @@ help:
 # ========================
 # 5. Phony Targets
 # ========================
+
 
 .PHONY: all clean help
