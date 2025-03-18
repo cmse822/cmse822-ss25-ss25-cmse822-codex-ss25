@@ -48,13 +48,25 @@ int main() {
    * -- check that the sum of scales values is 1
    */
   float sum_random, scaled_random, sum_scaled_random;
-  MPI_Allreduce(
-/**** your code here ****/
-		);
+
+  /*
+   * Send the reference of the computed random number
+   * Recieve a reference to the sum
+   * Size of 1 float
+   * Perform the summation
+   */
+  MPI_Allreduce(&myrandom, &sum_random, 1, MPI_FLOAT, MPI_SUM, comm);
+
   scaled_random = myrandom / sum_random;
-  MPI_Allreduce(
-/**** your code here ****/
-		);
+
+  /*
+   * Send the reference of the *scaled* random number
+   * Recieve a reference to the *scaled* sum
+   * Size of 1 float
+   * Perform the summation
+   */
+  MPI_Allreduce(&scaled_random, &sum_scaled_random, 1, MPI_FLOAT, MPI_SUM, comm);
+  
   /*
    * Correctness test
    */
@@ -75,18 +87,7 @@ int main() {
     cerr << proctext.str(); proctext.clear();
   }
 
-#if 0
-  // Exercise part 2:
-  // -- compute the maximum random value on process zero
-  MPI_Reduce(
-/**** your code here ****/
-	     );
-  if (procno==0) {
-    stringstream proctext;
-    proctext << "Part 2: The maximum number is " << globalrandom << endl;
-    cerr << proctext.str(); proctext.clear();
-  }
-#endif
+  // Part 2 of the exercise was removed as that was exercise 3.6, not 3.2
 
   MPI_Finalize();
   return 0;
