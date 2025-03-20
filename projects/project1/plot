@@ -1,0 +1,67 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def plot_roofline(l1_bw=226.2, l2_bw=166.7, l3_bw = 77.8, dram_bw=37.7, peak_perf=43.0):
+    """
+    Plots an Empirical Roofline Model with customizable L1, L2, and DRAM bandwidths, 
+    as well as peak performance.
+    
+    Parameters:
+        l1_bw (float): L1 cache bandwidth in GB/s.
+        l2_bw (float): L2 cache bandwidth in GB/s.
+        dram_bw (float): DRAM bandwidth in GB/s.
+        peak_perf (float): Peak floating point performance in GFLOPs/sec.
+    """
+    # Define FLOP/Byte operational intensity range
+    intensity = np.logspace(-2, 2, 100)  # Log scale from 0.01 to 100
+
+    # Compute roofline limits
+    l1_limit = np.minimum(intensity * l1_bw, peak_perf)
+    l2_limit = np.minimum(intensity * l2_bw, peak_perf)
+    l3_limit = np.minimum(intensity * l3_bw, peak_perf)
+    dram_limit = np.minimum(intensity * dram_bw, peak_perf)
+
+    # Plot setup
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.set_xscale("log")
+    ax.set_yscale("log")
+    ax.set_xlabel("FLOPs / Byte")
+    ax.set_ylabel("GFLOPs / sec")
+    ax.set_title("Empirical Roofline Model")
+
+    # Plot the roofline bands
+    ax.plot(intensity, l1_limit, label=f"L1 - {l1_bw} GB/s", linestyle='-', linewidth=2, color='r')
+    ax.plot(intensity, l2_limit, label=f"L2 - {l2_bw} GB/s", linestyle='-', linewidth=2, color='g')
+    ax.plot(intensity, l3_limit, label=f"L3 - {l3_bw} GB/s", linestyle='-', linewidth=2, color='#FF8800')
+    ax.plot(intensity, dram_limit, label=f"DRAM - {dram_bw} GB/s", linestyle='-', linewidth=2, color='b')
+
+    # Peak Performance Line
+    ax.axhline(y=peak_perf, color='black', linestyle='--', linewidth=2, label=f"Peak Perf: {peak_perf} GFLOPs/s")
+
+    ax.scatter(1.03, 7.52, s=100, label="Gravity Solver-64", edgecolors = 'black')
+
+    ax.scatter(0.77, 0.45, s=100, label="Gravity Solver-128", edgecolors = 'black')
+
+    ax.scatter(0.46, 0.16, s=100, label="Gravity Solver-256", edgecolors = 'black')
+
+    ax.scatter(0.37, 0.026, s=100, label="Gravity Solver-512", edgecolors = 'black')
+    
+    ax.scatter(0.17, 2.30, s=100, label="Euler Solver-64")
+
+    ax.scatter(0.20, 0.103, s=100, label="Euler Solver-128")
+
+    ax.scatter(0.20, 0.0611, s=100, label="Euler Solver-256")
+
+    ax.scatter(0.14, 0.0116, s=100, label="Euler Solver-512")
+
+    # Grid and legend
+    ax.grid(True, which="both", linestyle="--", linewidth=0.5)
+    ax.legend()
+    
+    # Show plot
+    plt.show()
+
+    return ax 
+
+# Example usage with default values extracted from PDF
+ax = plot_roofline()

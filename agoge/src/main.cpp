@@ -244,6 +244,7 @@ int main(int argc, char** argv) {
     Q.rankMinusZ = (myK > 0) ? (rank - (Px * Py)) : MPI_PROC_NULL;
     Q.rankPlusZ = (myK < Pz - 1) ? (rank + (Px * Py)) : MPI_PROC_NULL;
 
+
     // Step 2: Override only boundary connections for periodic BCs
     // Only update the domain boundaries that are periodic, leaving outflow as MPI_PROC_NULL
     if (params.getBoundaryCondition("bc_xmin") == agoge::config::BoundaryCondition::PERIODIC && myI == 0) {
@@ -263,6 +264,7 @@ int main(int argc, char** argv) {
     }
     if (params.getBoundaryCondition("bc_zmax") == agoge::config::BoundaryCondition::PERIODIC && myK == Pz - 1) {
         Q.rankPlusZ = 0 * (Px * Py) + myJ * Px + myI;
+
     }
 
     Q.allocateMPIBuffers();

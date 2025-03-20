@@ -277,6 +277,7 @@ void Field3D::applyBCs() {
     // The following applies if there is a valid MPI neighbor,
     // while for global boundaries (neighbor rank == -1) physical BCs remain.
 
+
     // Unified dimension specifier
     enum class Dimension { X, Y, Z };
 
@@ -447,6 +448,7 @@ void Field3D::applyBCs() {
                      recvBuf.data(), slabSizeX * numArrays, MPI_DOUBLE, rankPlusX, tag,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         if (rankPlusX != MPI_PROC_NULL) unpackGhosts(recvBuf, 0, true);
+
     }
 
     // --- Y-DIRECTION HALO EXCHANGE USING MPI_Sendrecv ---
@@ -470,6 +472,7 @@ void Field3D::applyBCs() {
 
     // --- Z-DIRECTION HALO EXCHANGE USING MPI_Sendrecv ---
     if (rankMinusZ != MPI_PROC_NULL || rankPlusZ != MPI_PROC_NULL) {
+
         // Phase 1: send to plus-side, receive from minus-side
         if (rankPlusZ != MPI_PROC_NULL) packGhosts(sendBuf, 2, true);
         
@@ -717,6 +720,7 @@ int Field3D::getNeighborIndexZ(int k, bool lowerSide) const {
         } else {
             return k + 1;
         }
+
     }
     return k;
 }
