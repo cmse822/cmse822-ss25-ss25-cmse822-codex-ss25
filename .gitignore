@@ -89,9 +89,6 @@ agoge/CMakeFiles/
 agoge/cmake_install.cmake
 agoge/build/*
 
-# Images
-*.png
-
 # HDF5 output
 *.h5
 *.out
@@ -99,3 +96,5 @@ agoge/build/*
 # binary
 agoge_run
 *.profraw
+projects/project1/ert_results/**_Results/Run.**/FLOPS.**
+projects/project1/ert_results/**_Results/Run.**/roofline.gnu

@@ -1,0 +1,68 @@
+{
+   "empirical": {
+      "metadata": {},
+      "gflops": {
+         "data": [
+            [
+               "FP64 GFLOPs",
+               47.34
+            ]
+         ],
+         "metadata": {
+            "": [
+               "META_DATA",
+               "FLOPS          4",
+               "ERT_VERSION  1.1.0",
+               "HOSTNAME  ('dev-intel18', ['dev-intel18.i', 'dev-intel18-ubuntu.i', 'dev-intel18-ubuntu'], ['192.168.10.106'])",
+               "UNAME  uname_result(system='Linux', node='dev-intel18', release='5.15.0-126-generic', version='#136-Ubuntu SMP Wed Nov 6 10:38:22 UTC 2024', machine='x86_64')",
+               "TIMESTAMP_DATA  1738703320.2757742",
+               "CONFIG  {'ERT_RESULTS': ['intel18_Results'], 'ERT_CC': ['gcc'], 'ERT_CFLAGS': ['-O3', '-march=native', '-std=c++17'], 'ERT_LD': ['gcc'], 'ERT_LDFLAGS': ['-lstdc++', '-static-libstdc++'], 'ERT_LDLIBS': ['-lstdc++'], 'ERT_DRIVER': ['driver1'], 'ERT_KERNEL': ['kernel1'], 'ERT_FLOPS': ['1,2,4,8,16'], 'ERT_ALIGN': ['64'], 'ERT_MPI': ['False'], 'ERT_OPENMP': ['False'], 'ERT_GPU': ['False'], 'ERT_RUN': ['./ERT_CODE'], 'ERT_NUM_EXPERIMENTS': ['3'], 'ERT_MEMORY_MAX': ['1073741824'], 'ERT_WORKING_SET_MIN': ['128'], 'ERT_TRIALS_MIN': ['10'], 'ERT_GNUPLOT': ['gnuplot'], 'ERT_HIP': [False], 'ERT_PRECISION': ['FP64'], 'ERT_OCL': [False], 'ERT_SYCL': [False], 'ERT_WSS_MULT': [1.1]}",
+               "TIMESTAMP_DATA  1738703353.8372486",
+               "TIMESTAMP_DATA  1738703384.967296"
+            ],
+            "TIMESTAMP_DB": 1738703658.2059026
+         }
+      },
+      "gbytes": {
+         "data": [
+            [
+               "L1",
+               242.65
+            ],
+            [
+               "L2",
+               174.49
+            ],
+            [
+               "L3",
+               83.13
+            ],
+            [
+               "DRAM",
+               40.18
+            ]
+         ],
+         "metadata": {
+            "": [
+               "FLOPS          2",
+               "ERT_VERSION  1.1.0",
+               "HOSTNAME  ('dev-intel18', ['dev-intel18.i', 'dev-intel18-ubuntu.i', 'dev-intel18-ubuntu'], ['192.168.10.106'])",
+               "UNAME  uname_result(system='Linux', node='dev-intel18', release='5.15.0-126-generic', version='#136-Ubuntu SMP Wed Nov 6 10:38:22 UTC 2024', machine='x86_64')",
+               "TIMESTAMP_DATA  1738703225.9187186",
+               "CONFIG  {'ERT_RESULTS': ['intel18_Results'], 'ERT_CC': ['gcc'], 'ERT_CFLAGS': ['-O3', '-march=native', '-std=c++17'], 'ERT_LD': ['gcc'], 'ERT_LDFLAGS': ['-lstdc++', '-static-libstdc++'], 'ERT_LDLIBS': ['-lstdc++'], 'ERT_DRIVER': ['driver1'], 'ERT_KERNEL': ['kernel1'], 'ERT_FLOPS': ['1,2,4,8,16'], 'ERT_ALIGN': ['64'], 'ERT_MPI': ['False'], 'ERT_OPENMP': ['False'], 'ERT_GPU': ['False'], 'ERT_RUN': ['./ERT_CODE'], 'ERT_NUM_EXPERIMENTS': ['3'], 'ERT_MEMORY_MAX': ['1073741824'], 'ERT_WORKING_SET_MIN': ['128'], 'ERT_TRIALS_MIN': ['10'], 'ERT_GNUPLOT': ['gnuplot'], 'ERT_HIP': [False], 'ERT_PRECISION': ['FP64'], 'ERT_OCL': [False], 'ERT_SYCL': [False], 'ERT_WSS_MULT': [1.1]}",
+               "TIMESTAMP_DATA  1738703256.1137958",
+               "TIMESTAMP_DATA  1738703287.3169606"
+            ],
+            "TIMESTAMP_DB": 1738703658.2060668
+         }
+      }
+   },
+   "spec": {
+      "gflops": {
+         "data": []
+      },
+      "gbytes": {
+         "data": []
+      }
+   }
+}
