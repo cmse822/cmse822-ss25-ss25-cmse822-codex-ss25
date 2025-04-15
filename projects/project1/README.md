@@ -8,12 +8,11 @@ In this Quest, you will join the legendary Profilers' Guild, tasked with guiding
 
 First thing upon accepting this assignment, specify who will be the _Naviagator_, _Lorekeeper_, and the group _Bard_ for this project. The Navigator will be responsible for setting group meetings and ensuring that all aspects of the project are addressed equitably amongst the group. The Lorekeeper will be responsible for ensuring that the project report is prepared according to the requirements and that all prompts are explicitly and clearly addressed. The Bard will be responsible for giving a short (10 minute max) presentation in class on the group's work upon completion of the project.
 
+**Navigator:** 
 
-**Navigator: Luke Perelli** 
+**Lorekeeper:** 
 
-**Lorekeeper: Andy Nolan** 
-
-**Bard: Alec Said**  
+**Bard:**  
 
 ## Learning Objectives
 
